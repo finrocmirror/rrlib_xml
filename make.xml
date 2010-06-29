@@ -1,0 +1,9 @@
+<targets>
+
+  <rrlib name="xml2_wrapper" libs="xml2">
+    <sources>
+      *.cpp
+    </sources>
+  </rrlib>
+
+</targets>
