@@ -25,11 +25,15 @@
  *
  * \date    2010-06-24
  *
- * \brief
+ * \brief Contains tXMLNode
  *
- * \b
+ * \b tXMLNode
  *
- * A few words for tXMLNode.h
+ * If an XML document is loaded for full access to its content, a DOM
+ * tree is generated consisting of nodes with attributes. This class
+ * implements the interface between libxml2 data storage and C++ types,
+ * featuring lazy evaluation. That means instances are not created before
+ * they are used.
  *
  */
 //----------------------------------------------------------------------
@@ -74,13 +78,18 @@ namespace xml2
 //----------------------------------------------------------------------
 // Class declaration
 //----------------------------------------------------------------------
-//! Short description of tXMLNode
-/*! A more detailed description of tXMLNode, which
- *  Tobias Foehst hasn't done yet!
+//! This class wraps accessing the nodes of the DOM tree of an XML document
+/*! If an XML document is loaded for full access to its content, a DOM
+ *  tree is generated consisting of nodes with attributes. This class
+ *  implements the interface between libxml2 data storage and C++ types,
+ *  featuring lazy evaluation. That means instances are not created before
+ *  they are used.
  *
  */
 class tXMLNode
 {
+  friend class tXMLDocument;
+
   xmlNodePtr node;
   mutable std::string *name;
   mutable std::vector<tXMLNode> *children;
@@ -97,6 +106,7 @@ class tXMLNode
     }
     return result;
   }
+
   template <typename TNumber>
   static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **))
   {
@@ -110,30 +120,71 @@ class tXMLNode
     return result;
   }
 
+  /*! The ctor of tXMLNode
+   *
+   * This ctor is declared private and thus can only be called from other instances
+   * of tXMLNode or friends like tXMLDocument.
+   *
+   * \param node   The libxml2 node that is wrapped by the new object
+   *
+   * \exception tXML2WrapperException is thrown if the given libxml2 element is not a node
+   */
+  tXMLNode(xmlNodePtr node);
+
 //----------------------------------------------------------------------
 // Public methods
 //----------------------------------------------------------------------
 public:
 
-  tXMLNode(xmlNodePtr node);
+  /*! The dtor of tXMLNode
+   */
   ~tXMLNode();
 
-  inline const std::string &GetName() const
-  {
-    if (!this->name)
-    {
-      this->name = new std::string(reinterpret_cast<const char *>(this->node->name));
-    }
-    return *this->name;
-  }
+  /*! Get the name of that node
+   *
+   * Each XML element has an unique name within its document type. This
+   * method provides access to the name of this node.
+   *
+   * \returns A reference to the node's name
+   */
+  const std::string &GetName() const;
 
+  /*! Get the children of this node
+   *
+   * Within the DOM tree, each node can have a list of children. Access
+   * to this list is provided by this method. The internal vector the
+   * method returns a reference to is not created before the first call
+   * to this method (lazy evaluation)
+   *
+   * \returns A reference to the node's vector containing its children
+   */
   const std::vector<tXMLNode> &GetChildren() const;
 
+  /*! Get whether this node has the given attribute or not
+   *
+   * Each XML node can have several attributes. Calling this method
+   * before accessing an attribute using its name gives information
+   * about its availability and thus can be used to avoid runtime
+   * errors in form of instances of tXML2WrapperException.
+   *
+   * \returns Whether this node has the given attribute or not
+   */
   inline const bool HasAttribute(const std::string &name) const
   {
     return xmlGetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
   }
 
+  /*! Get an XML attribute as std::string
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as string.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute is not available
+   *
+   * \param name   The name of the attribute
+   *
+   * \returns The attribute as std::string
+   */
   inline const std::string GetStringAttribute(const std::string &name) const
   {
     const char *result = reinterpret_cast<const char *>(xmlGetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str())));
@@ -144,31 +195,104 @@ public:
     return result;
   }
 
+  /*! Get an XML attribute as long int
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as long int.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   *
+   * \param name   The name of the attribute
+   * \param base   The base that should be used for number interpretation
+   *
+   * \returns The attribute as long int
+   */
   inline const long int GetLongIntAttribute(const std::string &name, int base = 10) const
   {
     return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtol, base);
   }
 
+  /*! Get an XML attribute as long long int
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as long long
+   * int.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   *
+   * \param name   The name of the attribute
+   * \param base   The base that should be used for number interpretation
+   *
+   * \returns The attribute as long long int
+   */
   inline const long long int GetLongLongIntAttribute(const std::string &name, int base = 10) const
   {
     return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtoll, base);
   }
 
+  /*! Get an XML attribute as float
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as float.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   *
+   * \param name   The name of the attribute
+   *
+   * \returns The attribute as float
+   */
   inline const float GetFloatAttribute(const std::string &name) const
   {
     return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtof);
   }
 
+  /*! Get an XML attribute as double
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as double.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   *
+   * \param name   The name of the attribute
+   *
+   * \returns The attribute as double
+   */
   inline const double GetDoubleAttribute(const std::string &name) const
   {
     return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtod);
   }
 
+  /*! Get an XML attribute as long double
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as long double.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   *
+   * \param name   The name of the attribute
+   *
+   * \returns The attribute as long double
+   */
   inline const long double GetLongDoubleAttribute(const std::string &name) const
   {
     return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtold);
   }
 
+  /*! Get an XML attribute as enum
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is interpreted as name of an element
+   * in an enumeration. Therefore, a vector with the enum's names must
+   * be provided. The method then returns the index of the name that
+   * was found in the attribute.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a member of given vector
+   *
+   * \param name         The name of the attribute
+   * \param enum_names   The names of the enumeration elements
+   *
+   * \returns The index of the matching element name
+   */
   template <typename TEnum>
   inline const TEnum GetEnumAttribute(const std::string &name, const std::vector<std::string> &enum_names) const
   {
@@ -181,6 +305,18 @@ public:
     return static_cast<TEnum>(std::distance(enum_names.begin(), it));
   }
 
+  /*! Get an XML attribute as bool
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method interpreted
+   * as bool.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not true/false
+   *
+   * \param name         The name of the attribute
+   *
+   * \returns Whether the attribute's value was "true" or "false"
+   */
   inline const bool GetBoolAttribute(const std::string &name) const
   {
     static const char *bool_names_init[2] = { "false", "true" };

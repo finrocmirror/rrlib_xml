@@ -85,7 +85,7 @@ tXMLNode::tXMLNode(xmlNodePtr node)
 //----------------------------------------------------------------------
 tXMLNode::~tXMLNode()
 {
-  delete(this->name);
+  delete this->name;
 }
 
 //----------------------------------------------------------------------
@@ -105,4 +105,16 @@ const std::vector<tXMLNode> &tXMLNode::GetChildren() const
     }
   }
   return *this->children;
+}
+
+//----------------------------------------------------------------------
+// class tXMLNode GetName
+//----------------------------------------------------------------------
+const std::string &tXMLNode::GetName() const
+{
+  if (!this->name)
+  {
+    this->name = new std::string(reinterpret_cast<const char *>(this->node->name));
+  }
+  return *this->name;
 }

@@ -70,7 +70,8 @@ using namespace rrlib::xml2;
 // class tXMLDocument constructors
 //----------------------------------------------------------------------
 tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
-    : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0))
+    : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
+    root_node(0)
 {
   assert(this->document);
   if (!this->document)
@@ -84,5 +85,18 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
 //----------------------------------------------------------------------
 tXMLDocument::~tXMLDocument()
 {
+  delete this->root_node;
   xmlFreeDoc(this->document);
+}
+
+//----------------------------------------------------------------------
+// class tXMLDocument GetRootNode
+//----------------------------------------------------------------------
+const tXMLNode &tXMLDocument::GetRootNode() const
+{
+  if (!this->root_node)
+  {
+    this->root_node = new tXMLNode(xmlDocGetRootElement(this->document));
+  }
+  return *this->root_node;
 }

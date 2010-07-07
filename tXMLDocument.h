@@ -25,11 +25,15 @@
  *
  * \date    2010-06-24
  *
- * \brief
+ * \brief Contains tXMLDocument
  *
- * \b
+ * \b tXMLDocument
  *
- * A few words for tXMLDocument.h
+ * If an XML document is loaded for full access to its content, a DOM
+ * tree is generated consisting of nodes of with attributes. This class
+ * implements parsing and validating an XML file as well as accessing
+ * the DOM tree through instances of tXMLNode, featuring lazy evaluation.
+ * That means wrapping instances are not created before they are used.
  *
  */
 //----------------------------------------------------------------------
@@ -69,30 +73,50 @@ namespace xml2
 //----------------------------------------------------------------------
 // Class declaration
 //----------------------------------------------------------------------
-//! Short description of tXMLDocument
-/*! A more detailed description of tXMLDocument, which
- *  Tobias Foehst hasn't done yet!
+//! This class wraps creation and accessing the DOM tree of an XML document
+/*! If an XML document is loaded for full access to its content, a DOM
+ *  tree is generated consisting of nodes with attributes. This class
+ *  implements parsing and validating an XML file as well as accessing
+ *  the DOM tree through instances of tXMLNode, featuring lazy evaluation.
+ *  That means wrapping instances are not created before they are used.
  *
  */
 class tXMLDocument
 {
   xmlDocPtr document;
+  mutable tXMLNode *root_node;
 
 //----------------------------------------------------------------------
 // Public methods
 //----------------------------------------------------------------------
 public:
 
+  /*! The ctor of tXMLDocument
+   *
+   * This ctor reads and parses a file with given name into a XML DOM
+   * representation.
+   * If needed, the XML document is also validated using an included
+   * DTD specification.
+   *
+   * \param file_name   The name of the file to load
+   * \param validate    Whether the validation should be processed or not
+   *
+   * \exception tXML2WrapperException is thrown if the file was not found or could not be parsed
+   */
   tXMLDocument(const std::string &file_name, bool validate = true);
 
   /*! The dtor of tXMLDocument
    */
   ~tXMLDocument();
 
-  inline const tXMLNode GetRootElement() const
-  {
-    return tXMLNode(xmlDocGetRootElement(this->document));
-  }
+  /*! Get the root node of the DOM tree stored for this document
+   *
+   * The XML document is stored as DOM tree in memory. This method
+   * provides node-wise access to this tree starting at its root.
+   *
+   * \returns A reference to the root node
+   */
+  const tXMLNode &GetRootNode() const;
 
 };
 
