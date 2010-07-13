@@ -57,7 +57,7 @@ extern "C"
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXML2WrapperException.h"
+#include "xml2_wrapper/tXML2WrapperException.h"
 
 //----------------------------------------------------------------------
 // Debugging
