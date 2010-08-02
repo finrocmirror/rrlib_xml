@@ -25,18 +25,12 @@
  *
  * \date    2010-06-24
  *
- * \brief
- *
- * \b
- *
- * A few words for tXMLNode.cpp
- *
  */
 //----------------------------------------------------------------------
 #include "xml2_wrapper/tXMLNode.h"
 
 //----------------------------------------------------------------------
-// External includes with <>
+// External includes (system with <>, local with "")
 //----------------------------------------------------------------------
 #include <cassert>
 
@@ -54,7 +48,7 @@
 using namespace rrlib::xml2;
 
 //----------------------------------------------------------------------
-// Forward declarations
+// Forward declarations / typedefs / enums
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
@@ -66,7 +60,7 @@ using namespace rrlib::xml2;
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
-// class tXMLNode constructors
+// tXMLNode constructors
 //----------------------------------------------------------------------
 tXMLNode::tXMLNode(xmlNodePtr node)
     : node(node),
@@ -81,7 +75,7 @@ tXMLNode::tXMLNode(xmlNodePtr node)
 }
 
 //----------------------------------------------------------------------
-// class tXMLNode destructor
+// tXMLNode destructor
 //----------------------------------------------------------------------
 tXMLNode::~tXMLNode()
 {
@@ -89,7 +83,7 @@ tXMLNode::~tXMLNode()
 }
 
 //----------------------------------------------------------------------
-// class tXMLNode GetChildren
+// tXMLNode GetChildren
 //----------------------------------------------------------------------
 const std::vector<tXMLNode> &tXMLNode::GetChildren() const
 {
@@ -108,7 +102,7 @@ const std::vector<tXMLNode> &tXMLNode::GetChildren() const
 }
 
 //----------------------------------------------------------------------
-// class tXMLNode GetName
+// tXMLNode GetName
 //----------------------------------------------------------------------
 const std::string &tXMLNode::GetName() const
 {

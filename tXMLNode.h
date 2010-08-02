@@ -41,7 +41,7 @@
 #define rrlib_xml2_wrapper_tXMLNode_h_
 
 //----------------------------------------------------------------------
-// External includes with <>
+// External includes (system with <>, local with "")
 //----------------------------------------------------------------------
 extern "C"
 {

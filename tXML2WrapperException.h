@@ -42,7 +42,7 @@
 #define rrlib_xml2_wrapper_tXML2WrapperException_h_
 
 //----------------------------------------------------------------------
-// External includes with <>
+// External includes (system with <>, local with "")
 //----------------------------------------------------------------------
 #include <stdexcept>
 

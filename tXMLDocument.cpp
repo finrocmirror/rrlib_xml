@@ -25,18 +25,12 @@
  *
  * \date    2010-06-24
  *
- * \brief
- *
- * \b
- *
- * A few words for tXMLDocument.cpp
- *
  */
 //----------------------------------------------------------------------
 #include "xml2_wrapper/tXMLDocument.h"
 
 //----------------------------------------------------------------------
-// External includes with <>
+// External includes (system with <>, local with "")
 //----------------------------------------------------------------------
 #include <cassert>
 
@@ -55,7 +49,7 @@
 using namespace rrlib::xml2;
 
 //----------------------------------------------------------------------
-// Forward declarations
+// Forward declarations / typedefs / enums
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
@@ -67,7 +61,7 @@ using namespace rrlib::xml2;
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
-// class tXMLDocument constructors
+// tXMLDocument constructors
 //----------------------------------------------------------------------
 tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
     : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
@@ -81,7 +75,7 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
 }
 
 //----------------------------------------------------------------------
-// class tXMLDocument destructor
+// tXMLDocument destructor
 //----------------------------------------------------------------------
 tXMLDocument::~tXMLDocument()
 {
@@ -90,7 +84,7 @@ tXMLDocument::~tXMLDocument()
 }
 
 //----------------------------------------------------------------------
-// class tXMLDocument GetRootNode
+// tXMLDocument GetRootNode
 //----------------------------------------------------------------------
 const tXMLNode &tXMLDocument::GetRootNode() const
 {
