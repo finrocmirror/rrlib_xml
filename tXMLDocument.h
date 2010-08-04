@@ -37,8 +37,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef rrlib_xml2_wrapper_tXMLDocument_h_
-#define rrlib_xml2_wrapper_tXMLDocument_h_
+#ifndef _rrlib_xml2_wrapper_tXMLDocument_h_
+#define _rrlib_xml2_wrapper_tXMLDocument_h_
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
