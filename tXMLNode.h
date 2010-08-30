@@ -49,6 +49,7 @@ extern "C"
 }
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include <cerrno>
@@ -100,8 +101,10 @@ class tXMLNode
     errno = 0;
     char *endptr;
     TNumber result = convert_function(value.c_str(), &endptr, base);
-    if (errno || endptr)
+    if (errno || *endptr)
     {
+      printf("errno = %d\n*endptr = '%c'\n", errno, *endptr);
+      printf("ERANGE = %d\n", ERANGE);
       throw tXML2WrapperException("Could not convert `" + value + "' to number!");
     }
     return result;
@@ -113,8 +116,10 @@ class tXMLNode
     errno = 0;
     char *endptr;
     TNumber result = convert_function(value.c_str(), &endptr);
-    if (errno || endptr)
+    if (errno || *endptr)
     {
+      printf("errno = %d\n*endptr = '%c'\n", errno, *endptr);
+      printf("ERANGE = %d\n", ERANGE);
       throw tXML2WrapperException("Could not convert `" + value + "' to number!");
     }
     return result;
@@ -130,6 +135,11 @@ class tXMLNode
    * \exception tXML2WrapperException is thrown if the given libxml2 element is not a node
    */
   tXMLNode(xmlNodePtr node);
+
+  inline void AddStringAttribute(const std::string &name, const std::string &value)
+  {
+    xmlNewProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
+  }
 
 //----------------------------------------------------------------------
 // Public methods
@@ -324,6 +334,16 @@ public:
     // FIXME: with c++0x this can be static const std::vector<std::string> bool_strings = { "false", "true" };
 
     return this->GetEnumAttribute<bool>(name, bool_names);
+  }
+
+  tXMLNode &AddChildNode(const std::string &name);
+
+  template <typename TValue>
+  inline void AddAttribute(const std::string &name, const TValue &value)
+  {
+    std::stringstream converted_value;
+    converted_value << value;
+    this->AddStringAttribute(name, converted_value.str());
   }
 
 };

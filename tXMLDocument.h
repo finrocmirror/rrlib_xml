@@ -91,7 +91,13 @@ class tXMLDocument
 //----------------------------------------------------------------------
 public:
 
-  /*! The ctor of tXMLDocument
+  /*! The ctor of an empty tXMLDocument
+   *
+   * This ctor creates a new xml document
+   */
+  tXMLDocument();
+
+  /*! The ctor of tXMLDocument from a given file
    *
    * This ctor reads and parses a file with given name into a XML DOM
    * representation.
@@ -103,7 +109,7 @@ public:
    *
    * \exception tXML2WrapperException is thrown if the file was not found or could not be parsed
    */
-  tXMLDocument(const std::string &file_name, bool validate = true);
+  explicit tXMLDocument(const std::string &file_name, bool validate = true);
 
   /*! The dtor of tXMLDocument
    */
@@ -116,7 +122,11 @@ public:
    *
    * \returns A reference to the root node
    */
-  const tXMLNode &GetRootNode() const;
+  tXMLNode &GetRootNode() const;
+
+  tXMLNode &AddRootNode(const std::string &name);
+
+  void WriteToFile(const std::string &file_name, int compression = 0) const;
 
 };
 

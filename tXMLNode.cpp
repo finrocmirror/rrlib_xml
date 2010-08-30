@@ -67,6 +67,7 @@ tXMLNode::tXMLNode(xmlNodePtr node)
     name(0),
     children(0)
 {
+  assert(node);
   assert(node->type == XML_ELEMENT_NODE);
   if (node->type != XML_ELEMENT_NODE)
   {
@@ -111,4 +112,15 @@ const std::string &tXMLNode::GetName() const
     this->name = new std::string(reinterpret_cast<const char *>(this->node->name));
   }
   return *this->name;
+}
+
+//----------------------------------------------------------------------
+// tXMLNode AddChildNode
+//----------------------------------------------------------------------
+tXMLNode &tXMLNode::AddChildNode(const std::string &name)
+{
+  xmlNodePtr child_node = xmlNewChild(this->node, 0, reinterpret_cast<const xmlChar*>(name.c_str()), 0);
+  this->GetChildren();
+  this->children->push_back(tXMLNode(child_node));
+  return this->children->back();
 }

@@ -5,5 +5,11 @@
       *.cpp
     </sources>
   </rrlib>
+  
+  <testprogram name="program" libs="rrlib_xml2_wrapper">
+    <sources>
+      test/*.cpp
+    </sources>
+  </testprogram>
 
 </targets>

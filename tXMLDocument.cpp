@@ -32,7 +32,7 @@
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
 //----------------------------------------------------------------------
-#include <cassert>
+#include <iostream>
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -42,6 +42,7 @@
 //----------------------------------------------------------------------
 // Debugging
 //----------------------------------------------------------------------
+#include <cassert>
 
 //----------------------------------------------------------------------
 // Namespace usage
@@ -63,6 +64,13 @@ using namespace rrlib::xml2;
 //----------------------------------------------------------------------
 // tXMLDocument constructors
 //----------------------------------------------------------------------
+tXMLDocument::tXMLDocument()
+    : document(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"))),
+    root_node(0)
+{
+  assert(this->document);
+}
+
 tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
     : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
     root_node(0)
@@ -86,11 +94,42 @@ tXMLDocument::~tXMLDocument()
 //----------------------------------------------------------------------
 // tXMLDocument GetRootNode
 //----------------------------------------------------------------------
-const tXMLNode &tXMLDocument::GetRootNode() const
+tXMLNode &tXMLDocument::GetRootNode() const
 {
   if (!this->root_node)
   {
+    xmlNodePtr node = xmlDocGetRootElement(this->document);
+    if (!node)
+    {
+      throw tXML2WrapperException("No root node defined for this document!");
+    }
     this->root_node = new tXMLNode(xmlDocGetRootElement(this->document));
   }
   return *this->root_node;
+}
+
+//----------------------------------------------------------------------
+// tXMLDocument AddRootNode
+//----------------------------------------------------------------------
+tXMLNode &tXMLDocument::AddRootNode(const std::string &name)
+{
+  if (this->root_node)
+  {
+    throw tXML2WrapperException("Root node already exists with name `" + name + "'!");
+  }
+  this->root_node = new tXMLNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
+  xmlDocSetRootElement(this->document, this->root_node->node);
+  return *this->root_node;
+}
+
+//----------------------------------------------------------------------
+// tXMLDocument WriteToFile
+//----------------------------------------------------------------------
+void tXMLDocument::WriteToFile(const std::string &file_name, int compression) const
+{
+  if (compression)
+  {
+    xmlSetDocCompressMode(this->document, compression);
+  }
+  xmlSaveFormatFileEnc(file_name.c_str(), this->document, "UTF-8", 1);
 }
