@@ -81,6 +81,7 @@ tXMLNode::tXMLNode(xmlNodePtr node)
 tXMLNode::~tXMLNode()
 {
   delete this->name;
+  delete this->children;
 }
 
 //----------------------------------------------------------------------
