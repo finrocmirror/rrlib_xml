@@ -23,7 +23,7 @@
  *
  * \author  Tobias Foehst
  *
- * \date    2010-06-24
+ * \date    2010-09-18
  *
  * \brief Contains tXMLDocument
  *
@@ -104,10 +104,10 @@ public:
    * If needed, the XML document is also validated using an included
    * DTD specification.
    *
+   * \exception tXML2WrapperException is thrown if the file was not found or could not be parsed
+   *
    * \param file_name   The name of the file to load
    * \param validate    Whether the validation should be processed or not
-   *
-   * \exception tXML2WrapperException is thrown if the file was not found or could not be parsed
    */
   explicit tXMLDocument(const std::string &file_name, bool validate = true);
 
@@ -124,8 +124,28 @@ public:
    */
   tXMLNode &GetRootNode() const;
 
+  /*! Add a root node to a new document in DOM representation
+   *
+   * If you create a new XML document the first thing to do is to
+   * add a root node with a specified name. After that, the root node
+   * is fixed and additional calls to this method will throw an exception.
+   *
+   * \exception tXML2WrapperException is thrown if the document already had a root node
+   *
+   * \param name   The name of the root node
+   *
+   * \returns A reference to the newly created root node
+   */
   tXMLNode &AddRootNode(const std::string &name);
 
+  /*! Write the XML document to a file
+   *
+   * This method creates or truncates a file with the given name and writes
+   * the documents XML representation into it.
+   *
+   * \param file_name     The name of the file to use
+   * \param compression   Compression level [0-9] where 0 is "no compression"
+   */
   void WriteToFile(const std::string &file_name, int compression = 0) const;
 
 };

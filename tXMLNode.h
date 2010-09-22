@@ -91,9 +91,29 @@ class tXMLNode
 {
   friend class tXMLDocument;
 
-  xmlNodePtr node;
-  mutable std::string *name;
-  mutable std::vector<tXMLNode> *children;
+  struct tData
+  {
+    unsigned int ref_counter;
+    xmlNodePtr node;
+    mutable std::string *name;
+    mutable std::vector<tXMLNode> *children;
+    mutable std::string *text_content;
+    tData(xmlNodePtr node);
+    ~tData();
+  };
+
+  tData *data;
+
+  /*! The ctor of tXMLNode
+   *
+   * This ctor is declared private and thus can only be called from other instances
+   * of tXMLNode or friends like tXMLDocument.
+   *
+   * \exception tXML2WrapperException is thrown if the given libxml2 element is not a node
+   *
+   * \param node   The libxml2 node that is wrapped by the new object
+   */
+  tXMLNode(xmlNodePtr node);
 
   template <typename TNumber>
   static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **, int), int base)
@@ -125,30 +145,29 @@ class tXMLNode
     return result;
   }
 
-  /*! The ctor of tXMLNode
-   *
-   * This ctor is declared private and thus can only be called from other instances
-   * of tXMLNode or friends like tXMLDocument.
-   *
-   * \param node   The libxml2 node that is wrapped by the new object
-   *
-   * \exception tXML2WrapperException is thrown if the given libxml2 element is not a node
-   */
-  tXMLNode(xmlNodePtr node);
-
-  inline void AddStringAttribute(const std::string &name, const std::string &value)
-  {
-    xmlNewProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
-  }
+  void SetStringAttribute(const std::string &name, const std::string &value, bool create);
 
 //----------------------------------------------------------------------
 // Public methods
 //----------------------------------------------------------------------
 public:
 
+  tXMLNode(const tXMLNode &other);
+
   /*! The dtor of tXMLNode
    */
   ~tXMLNode();
+
+  /*! Comparison of XML node objects for find algorithm
+   *
+   * \param other   The other node to compare to this one
+   *
+   * \returns Whether the two nodes are the same or not
+   */
+  bool operator == (const tXMLNode &other)
+  {
+    return this->data == other.data;
+  }
 
   /*! Get the name of that node
    *
@@ -170,6 +189,69 @@ public:
    */
   const std::vector<tXMLNode> &GetChildren() const;
 
+  /*! Add a child to this node
+   *
+   * In XML DOM trees a node can have several child nodes which are XML
+   * nodes themselves. This method add such a node with a given name to
+   * the structure which then can be extended by further children or
+   * attributes.
+   *
+   * \note Each node can either have structural child nodes or text content,
+   * but not both at the same time.
+   *
+   * \exception tXML2WrapperException is thrown if the node already contains text content
+   *
+   * \param name   The name of the new node
+   *
+   * \returns A reference to the newly created node
+   */
+  tXMLNode &AddChildNode(const std::string &name);
+
+  /*! Remove a structural child node
+   *
+   * Removes a given node from the children list of this node.
+   *
+   * \exception tXML2WrapperException is thrown if the given node is not a child node
+   *
+   * \param node   The node to remove from the list
+   */
+  void RemoveChildNode(tXMLNode &node);
+
+  /*! Get whether this node has text content or not
+   *
+   * Instead of structural child nodes each node can have plain text content.
+   * This method determines the existence of text content and creates an
+   * internal representation for fast access (lazy evaluation). Furthermore,
+   * calling this method befor accessing the text content can be used to
+   * avoid runtim errors in form of instances of tXML2WrapperException.
+   *
+   * \returns Whether this node has plain text content or not
+   */
+  const bool HasTextContent() const;
+
+  /*! Get the plain text content of this node
+   *
+   * If the node contains plain text content this method grants access via
+   * a std::string reference.
+   *
+   * \exception tXML2WrapperException is thrown if the node does not contain plain text content
+   *
+   * \returns A reference to the plain text content
+   */
+  const std::string &GetTextContent() const;
+
+  /*! Set the plain text content of this node
+   *
+   * \exception tXML2WrapperException is thrown if the node already has structural children
+   *
+   * \param content   The new plain text content of this node
+   */
+  void SetTextContent(const std::string &content);
+
+  /*! Remove the plain text content of this node
+   */
+  void RemoveTextContent();
+
   /*! Get whether this node has the given attribute or not
    *
    * Each XML node can have several attributes. Calling this method
@@ -181,7 +263,7 @@ public:
    */
   inline const bool HasAttribute(const std::string &name) const
   {
-    return xmlGetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
+    return xmlHasProp(this->data->node, reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
   }
 
   /*! Get an XML attribute as std::string
@@ -197,12 +279,31 @@ public:
    */
   inline const std::string GetStringAttribute(const std::string &name) const
   {
-    const char *result = reinterpret_cast<const char *>(xmlGetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str())));
-    if (!result)
+    xmlChar *temp = xmlGetProp(this->data->node, reinterpret_cast<const xmlChar *>(name.c_str()));
+    if (!temp)
     {
       throw tXML2WrapperException("Requested attribute `" + name + "' does not exist in this node!");
     }
+    std::string result(reinterpret_cast<char *>(temp));
+    xmlFree(temp);
     return result;
+  }
+
+  /*! Get an XML attribute as int
+   *
+   * If the XML node wrapped by this instance has an attribute with
+   * the given name, its value is returned by this method as int.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   *
+   * \param name   The name of the attribute
+   * \param base   The base that should be used for number interpretation
+   *
+   * \returns The attribute as int
+   */
+  inline const int GetIntAttribute(const std::string &name, int base = 10) const
+  {
+    return this->GetLongIntAttribute(name, base);
   }
 
   /*! Get an XML attribute as long int
@@ -323,7 +424,7 @@ public:
    *
    * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not true/false
    *
-   * \param name         The name of the attribute
+   * \param name   The name of the attribute
    *
    * \returns Whether the attribute's value was "true" or "false"
    */
@@ -336,14 +437,88 @@ public:
     return this->GetEnumAttribute<bool>(name, bool_names);
   }
 
-  tXMLNode &AddChildNode(const std::string &name);
-
+  /*! Set an XML attribute of this node
+   *
+   * This methods sets the attribute with the given name to the given value.
+   * If the node does not have the specified attribute yet, it will be created
+   * depending on the given parameter.
+   *
+   * \note The value type must support streaming to be serialized
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   *
+   * \param name     The name of the attribute
+   * \param value    The new value
+   * \param create   Whether a non-existing attribute should be created or not
+   */
   template <typename TValue>
-  inline void AddAttribute(const std::string &name, const TValue &value)
+  inline void SetAttribute(const std::string &name, const TValue &value, bool create = true)
   {
     std::stringstream converted_value;
     converted_value << value;
-    this->AddStringAttribute(name, converted_value.str());
+    this->SetStringAttribute(name, converted_value.str(), create);
+  }
+
+  /*! Set a bool XML attribute of this node
+   *
+   * This is a method for special handling of bool values which should be serialized
+   * into "true" and "false" instead of int representation.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   *
+   * \param name     The name of the attribute
+   * \param value    The new value
+   * \param create   Whether a non-existing attribute should be created or not
+   */
+  inline void SetAttribute(const std::string &name, bool value, bool create = true)
+  {
+    this->SetStringAttribute(name, value ? "true" : "false", create);
+  }
+
+  /*! Set a string XML attribute of this node
+   *
+   * This is a method for special handling of string values which do not have to be
+   * serialized via stringstream.
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   *
+   * \param name     The name of the attribute
+   * \param value    The new value
+   * \param create   Whether a non-existing attribute should be created or not
+   */
+  inline void SetAttribute(const std::string &name, const std::string &value, bool create = true)
+  {
+    this->SetStringAttribute(name, value, create);
+  }
+
+  /*! Set a char * XML attribute of this node
+   *
+   * This is a method for special handling of string values which do not have to be
+   * serialized via stringstream (needed because implicit conversion does not work due
+   * to the template version of this method).
+   *
+   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   *
+   * \param name     The name of the attribute
+   * \param value    The new value
+   * \param create   Whether a non-existing attribute should be created or not
+   */
+  inline void SetAttribute(const std::string &name, const char *value, bool create = true)
+  {
+    this->SetStringAttribute(name, value, create);
+  }
+
+  /*! Remove an attribute from this node
+   *
+   * \param name     The name of the attribute
+   */
+  inline void RemoveAttribute(const std::string &name)
+  {
+    xmlAttrPtr attr = xmlHasProp(this->data->node, reinterpret_cast<const xmlChar *>(name.c_str()));
+    if (attr)
+    {
+      xmlRemoveProp(attr);
+    }
   }
 
 };

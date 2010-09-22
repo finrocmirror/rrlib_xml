@@ -1,2 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<test1 prop_1="val_1" prop_2="1" prop_3="4.3" prop_4="123"/>
+<test prop_1="val" prop_2="true" prop_3="4.3" prop_4="123">
+  <test1 prop_1="val_1" prop_2="true" prop_3="4.3">fn0rd&amp;&lt;bla</test1>
+</test>

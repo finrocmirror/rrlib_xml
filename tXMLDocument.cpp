@@ -118,7 +118,7 @@ tXMLNode &tXMLDocument::AddRootNode(const std::string &name)
     throw tXML2WrapperException("Root node already exists with name `" + name + "'!");
   }
   this->root_node = new tXMLNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
-  xmlDocSetRootElement(this->document, this->root_node->node);
+  xmlDocSetRootElement(this->document, this->root_node->data->node);
   return *this->root_node;
 }
 
