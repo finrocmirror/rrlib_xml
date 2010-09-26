@@ -6,7 +6,7 @@
     </sources>
   </rrlib>
   
-  <testprogram name="program" libs="rrlib_xml2_wrapper">
+  <testprogram name="program">
     <sources>
       test/*.cpp
     </sources>
