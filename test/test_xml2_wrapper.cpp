@@ -35,7 +35,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "xml2_wrapper/tXMLDocument.h"
+#include "rrlib/xml2_wrapper/tXMLDocument.h"
 
 using namespace rrlib::xml2;
 //----------------------------------------------------------------------

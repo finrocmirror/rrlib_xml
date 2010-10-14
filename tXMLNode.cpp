@@ -27,7 +27,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include "xml2_wrapper/tXMLNode.h"
+#include "rrlib/xml2_wrapper/tXMLNode.h"
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")

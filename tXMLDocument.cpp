@@ -27,7 +27,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include "xml2_wrapper/tXMLDocument.h"
+#include "rrlib/xml2_wrapper/tXMLDocument.h"
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -37,7 +37,7 @@
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "xml2_wrapper/tXML2WrapperException.h"
+#include "rrlib/xml2_wrapper/tXML2WrapperException.h"
 
 //----------------------------------------------------------------------
 // Debugging
