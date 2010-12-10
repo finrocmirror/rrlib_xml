@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE targets PUBLIC "-//RRLIB//DTD make 1.0" "http://finroc.org/xml/rrlib/1.0/make.dtd">
+<!-- <!DOCTYPE targets PUBLIC "-//RRLIB//DTD make 1.0" "http://finroc.org/xml/rrlib/1.0/make.dtd"> -->
 <targets>
 
   <rrlib name="xml2_wrapper"
