@@ -63,6 +63,7 @@ extern "C"
 //----------------------------------------------------------------------
 // Debugging
 //----------------------------------------------------------------------
+#include <cassert>
 
 //----------------------------------------------------------------------
 // Namespace declaration
@@ -90,19 +91,10 @@ namespace xml2
 class tXMLNode
 {
   friend class tXMLDocument;
+  friend class tXMLNodeSiblingIterator;
 
-  struct tData
-  {
-    unsigned int ref_counter;
-    xmlNodePtr node;
-    mutable std::string *name;
-    mutable std::vector<tXMLNode> *children;
-    mutable std::string *text_content;
-    tData(xmlNodePtr node);
-    ~tData();
-  };
-
-  tData *data;
+  xmlNodePtr node;
+  mutable std::string *text_content;
 
   /*! The ctor of tXMLNode
    *
@@ -154,9 +146,9 @@ public:
 
   tXMLNode(const tXMLNode &other);
 
-  /*! The dtor of tXMLNode
-   */
   ~tXMLNode();
+
+  const tXMLNode &operator = (const tXMLNode &other);
 
   /*! Comparison of XML node objects for find algorithm
    *
@@ -164,9 +156,20 @@ public:
    *
    * \returns Whether the two nodes are the same or not
    */
-  bool operator == (const tXMLNode &other)
+  inline bool operator == (const tXMLNode &other) const
   {
-    return this->data == other.data;
+    return this->node == other.node;
+  }
+
+  /*! Comparison of XML node objects for find algorithm
+   *
+   * \param other   The other node to compare to this one
+   *
+   * \returns Whether the two nodes are the same or not
+   */
+  inline bool operator != (const tXMLNode &other) const
+  {
+    return this->node != other.node;
   }
 
   /*! Get the name of that node
@@ -176,18 +179,23 @@ public:
    *
    * \returns A reference to the node's name
    */
-  const std::string &GetName() const;
+  const std::string GetName() const;
 
-  /*! Get the children of this node
-   *
-   * Within the DOM tree, each node can have a list of children. Access
-   * to this list is provided by this method. The internal vector the
-   * method returns a reference to is not created before the first call
-   * to this method (lazy evaluation)
-   *
-   * \returns A reference to the node's vector containing its children
-   */
-  const std::vector<tXMLNode> &GetChildren() const;
+  inline const bool HasChildren() const
+  {
+    return this->node->children != 0 && this->node->children->type == XML_ELEMENT_NODE;
+  }
+
+  inline tXMLNode GetFirstChild()
+  {
+    assert(this->node->children && this->node->children->type == XML_ELEMENT_NODE);
+    return this->node->children;
+  }
+
+  inline const tXMLNode GetFirstChild() const
+  {
+    return const_cast<tXMLNode *>(this)->GetFirstChild();
+  }
 
   /*! Add a child to this node
    *
@@ -205,7 +213,9 @@ public:
    *
    * \returns A reference to the newly created node
    */
-  tXMLNode &AddChildNode(const std::string &name);
+  tXMLNode AddChildNode(const std::string &name);
+
+  tXMLNode AddChildNode(const tXMLNode &node);
 
   /*! Remove a structural child node
    *
@@ -216,6 +226,24 @@ public:
    * \param node   The node to remove from the list
    */
   void RemoveChildNode(tXMLNode &node);
+
+  inline const bool HasNextSibling()
+  {
+    return this->node->next != 0 && this->node->next->type == XML_ELEMENT_NODE;
+  }
+
+  inline tXMLNode GetNextSibling()
+  {
+    assert(this->node->next && this->node->next->type == XML_ELEMENT_NODE);
+    return this->node->next;
+  }
+
+  inline const tXMLNode GetNextSibling() const
+  {
+    return const_cast<tXMLNode *>(this)->GetNextSibling();
+  }
+
+  tXMLNode AddSibling(const tXMLNode &node);
 
   /*! Get whether this node has text content or not
    *
@@ -263,7 +291,7 @@ public:
    */
   inline const bool HasAttribute(const std::string &name) const
   {
-    return xmlHasProp(this->data->node, reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
+    return xmlHasProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
   }
 
   /*! Get an XML attribute as std::string
@@ -279,7 +307,7 @@ public:
    */
   inline const std::string GetStringAttribute(const std::string &name) const
   {
-    xmlChar *temp = xmlGetProp(this->data->node, reinterpret_cast<const xmlChar *>(name.c_str()));
+    xmlChar *temp = xmlGetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()));
     if (!temp)
     {
       throw tXML2WrapperException("Requested attribute `" + name + "' does not exist in this node!");
@@ -514,7 +542,7 @@ public:
    */
   inline void RemoveAttribute(const std::string &name)
   {
-    xmlAttrPtr attr = xmlHasProp(this->data->node, reinterpret_cast<const xmlChar *>(name.c_str()));
+    xmlAttrPtr attr = xmlHasProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()));
     if (attr)
     {
       xmlRemoveProp(attr);

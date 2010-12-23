@@ -82,6 +82,16 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
   }
 }
 
+//tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
+//    : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
+//    root_node(0)
+//{
+//  if (!this->document)
+//  {
+//    throw tXML2WrapperException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
+//  }
+//}
+
 //----------------------------------------------------------------------
 // tXMLDocument destructor
 //----------------------------------------------------------------------
@@ -94,7 +104,7 @@ tXMLDocument::~tXMLDocument()
 //----------------------------------------------------------------------
 // tXMLDocument GetRootNode
 //----------------------------------------------------------------------
-tXMLNode &tXMLDocument::GetRootNode() const
+tXMLNode &tXMLDocument::GetRootNode()
 {
   if (!this->root_node)
   {
@@ -118,7 +128,7 @@ tXMLNode &tXMLDocument::AddRootNode(const std::string &name)
     throw tXML2WrapperException("Root node already exists with name `" + name + "'!");
   }
   this->root_node = new tXMLNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
-  xmlDocSetRootElement(this->document, this->root_node->data->node);
+  xmlDocSetRootElement(this->document, this->root_node->node);
   return *this->root_node;
 }
 

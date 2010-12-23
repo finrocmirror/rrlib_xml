@@ -111,6 +111,8 @@ public:
    */
   explicit tXMLDocument(const std::string &file_name, bool validate = true);
 
+//  tXMLDocument(const void *buffer, size_t size, bool validate = true);
+
   /*! The dtor of tXMLDocument
    */
   ~tXMLDocument();
@@ -122,7 +124,12 @@ public:
    *
    * \returns A reference to the root node
    */
-  tXMLNode &GetRootNode() const;
+  tXMLNode &GetRootNode();
+
+  inline const tXMLNode &GetRootNode() const
+  {
+    return const_cast<const tXMLDocument *>(this)->GetRootNode();
+  }
 
   /*! Add a root node to a new document in DOM representation
    *
