@@ -186,6 +186,22 @@ public:
     return this->node->children != 0 && this->node->children->type == XML_ELEMENT_NODE;
   }
 
+  inline std::vector<tXMLNode> GetChildren() const
+  {
+    std::vector<tXMLNode> children;
+    if (this->HasChildren())
+    {
+      tXMLNode child = this->GetFirstChild();
+      do
+      {
+        children.push_back(child);
+        child = child.GetNextSibling();
+      }
+      while (child.HasNextSibling());
+    }
+    return children;
+  }
+
   inline tXMLNode GetFirstChild()
   {
     assert(this->node->children && this->node->children->type == XML_ELEMENT_NODE);
