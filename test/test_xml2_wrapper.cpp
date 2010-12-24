@@ -149,28 +149,34 @@ int main(int argc, char **argv)
   std::cout << "doc 1: " << document1.GetRootNode().GetXMLDump() << std::endl;
   std::cout << "doc 2: " << document2.GetRootNode().GetXMLDump() << std::endl;
 
-  tXMLDocument document3;
-
-  document3.AddRootNode("foo");
-
-  xmlNewChild(reinterpret_cast<xmlNode *>(&document3.GetRootNode()), 0, reinterpret_cast<const xmlChar *>("child1"), reinterpret_cast<const xmlChar *>("text1"));
-  xmlNewChild(reinterpret_cast<xmlNode *>(&document3.GetRootNode().GetFirstChild()), 0, reinterpret_cast<const xmlChar *>("child2"), reinterpret_cast<const xmlChar *>("text2"));
-
-  xmlNodeAddContent(reinterpret_cast<xmlNode *>(&document3.GetRootNode().GetFirstChild()), reinterpret_cast<const xmlChar *>("text3"));
-
-  std::cout << "doc 3: " << document3.GetRootNode().GetXMLDump() << std::endl;
-
-  std::cout << "content = " << document3.GetRootNode().GetFirstChild().GetTextContent() << std::endl;
-
-  document3.GetRootNode().GetFirstChild().RemoveTextContent();
-
-  std::cout << "content = " << document3.GetRootNode().GetFirstChild().GetTextContent() << std::endl;
-
-  for (tXMLNode::iterator it = document3.GetRootNode().GetFirstChild().GetChildrenBegin(); it != document3.GetRootNode().GetFirstChild().GetChildrenEnd(); ++it)
   {
-    std::cout << "child: " << it->GetXMLDump() << std::endl;
+    tXMLDocument document3;
+
+    document3.AddRootNode("foo");
+
+    xmlNewChild(reinterpret_cast<xmlNode *>(&document3.GetRootNode()), 0, reinterpret_cast<const xmlChar *>("child1"), reinterpret_cast<const xmlChar *>("text1"));
+    xmlNewChild(reinterpret_cast<xmlNode *>(&document3.GetRootNode().GetFirstChild()), 0, reinterpret_cast<const xmlChar *>("child2"), reinterpret_cast<const xmlChar *>("text2"));
+
+    xmlNodeAddContent(reinterpret_cast<xmlNode *>(&document3.GetRootNode().GetFirstChild()), reinterpret_cast<const xmlChar *>("text3"));
+
+    std::cout << "doc 3: " << document3.GetRootNode().GetXMLDump() << std::endl;
+
+    std::cout << "content = " << document3.GetRootNode().GetFirstChild().GetTextContent() << std::endl;
+
+    document3.GetRootNode().GetFirstChild().RemoveTextContent();
+
+    std::cout << "content = " << document3.GetRootNode().GetFirstChild().GetTextContent() << std::endl;
+
+    for (tXMLNode::iterator it = document3.GetRootNode().GetFirstChild().GetChildrenBegin(); it != document3.GetRootNode().GetFirstChild().GetChildrenEnd(); ++it)
+    {
+      std::cout << "child: " << it->GetXMLDump() << std::endl;
+    }
+
+    document1.GetRootNode().AddChildNode(document3.GetRootNode().GetFirstChild());
   }
 
+
+  std::cout << "doc 1: " << document1.GetRootNode().GetXMLDump() << std::endl;
 
 
   return EXIT_SUCCESS;

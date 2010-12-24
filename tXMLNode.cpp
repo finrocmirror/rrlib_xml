@@ -116,13 +116,13 @@ tXMLNode &tXMLNode::AddChildNode(const std::string &name, const std::string &con
 tXMLNode &tXMLNode::AddChildNode(tXMLNode &node, bool copy)
 {
   tXMLNode *child = &node;
-  if (child->doc != this->doc)
-  {
-    xmlUnlinkNode(child);
-  }
   if (copy)
   {
     child = reinterpret_cast<tXMLNode *>(xmlDocCopyNode(child, this->doc, 1));
+  }
+  if (child->doc != this->doc)
+  {
+    xmlUnlinkNode(child);
   }
   if (this->IsInSubtreeOf(*child))
   {
@@ -174,13 +174,13 @@ tXMLNode &tXMLNode::AddNextSibling(const std::string &name, const std::string &c
 tXMLNode &tXMLNode::AddNextSibling(tXMLNode &node, bool copy)
 {
   tXMLNode *sibling = &node;
-  if (sibling->doc != this->doc)
-  {
-    xmlUnlinkNode(sibling);
-  }
   if (copy)
   {
     sibling = reinterpret_cast<tXMLNode *>(xmlDocCopyNode(sibling, this->doc, 1));
+  }
+  if (sibling->doc != this->doc)
+  {
+    xmlUnlinkNode(sibling);
   }
   if (this->IsInSubtreeOf(*sibling))
   {
