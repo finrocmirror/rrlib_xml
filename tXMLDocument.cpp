@@ -38,6 +38,7 @@
 // Internal includes with ""
 //----------------------------------------------------------------------
 #include "rrlib/xml2_wrapper/tXML2WrapperException.h"
+#include "rrlib/xml2_wrapper/tCleanupHandler.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -69,17 +70,19 @@ tXMLDocument::tXMLDocument()
     root_node(0)
 {
   assert(this->document);
+  tCleanupHandler::GetInstance();
 }
 
 tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
     : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
-    root_node(0)
+    root_node(reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document)))
 {
   assert(this->document);
   if (!this->document)
   {
     throw tXML2WrapperException("Could not parse XML file `" + file_name + "'!");
   }
+  tCleanupHandler::GetInstance();
 }
 
 //tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
@@ -97,7 +100,6 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
 //----------------------------------------------------------------------
 tXMLDocument::~tXMLDocument()
 {
-  delete this->root_node;
   xmlFreeDoc(this->document);
 }
 
@@ -108,12 +110,7 @@ tXMLNode &tXMLDocument::GetRootNode()
 {
   if (!this->root_node)
   {
-    xmlNodePtr node = xmlDocGetRootElement(this->document);
-    if (!node)
-    {
-      throw tXML2WrapperException("No root node defined for this document!");
-    }
-    this->root_node = new tXMLNode(xmlDocGetRootElement(this->document));
+    throw tXML2WrapperException("No root node defined for this document!");
   }
   return *this->root_node;
 }
@@ -127,8 +124,8 @@ tXMLNode &tXMLDocument::AddRootNode(const std::string &name)
   {
     throw tXML2WrapperException("Root node already exists with name `" + name + "'!");
   }
-  this->root_node = new tXMLNode(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
-  xmlDocSetRootElement(this->document, this->root_node->node);
+  this->root_node = reinterpret_cast<tXMLNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
+  xmlDocSetRootElement(this->document, this->root_node);
   return *this->root_node;
 }
 

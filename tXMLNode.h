@@ -54,6 +54,8 @@ extern "C"
 #include <algorithm>
 #include <cerrno>
 #include <cstdlib>
+#include <iterator>
+#include <boost/noncopyable.hpp>
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -88,24 +90,9 @@ namespace xml2
  *  they are used.
  *
  */
-class tXMLNode
+class tXMLNode : protected xmlNode, boost::noncopyable
 {
   friend class tXMLDocument;
-  friend class tXMLNodeSiblingIterator;
-
-  xmlNodePtr node;
-  mutable std::string *text_content;
-
-  /*! The ctor of tXMLNode
-   *
-   * This ctor is declared private and thus can only be called from other instances
-   * of tXMLNode or friends like tXMLDocument.
-   *
-   * \exception tXML2WrapperException is thrown if the given libxml2 element is not a node
-   *
-   * \param node   The libxml2 node that is wrapped by the new object
-   */
-  tXMLNode(xmlNodePtr node);
 
   template <typename TNumber>
   static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **, int), int base)
@@ -144,13 +131,72 @@ class tXMLNode
 //----------------------------------------------------------------------
 public:
 
-  tXMLNode(const tXMLNode &other);
+  class iterator : public std::iterator<std::forward_iterator_tag, tXMLNode>
+  {
+    pointer element;
 
+  public:
+    inline iterator() : element(0) {}
+    inline iterator(pointer element) : element(element)
+    {
+      if (this->element && this->element->type != XML_ELEMENT_NODE)
+      {
+        operator++();
+      }
+    }
+
+    inline reference operator*() const
+    {
+      return *element;
+    }
+    inline pointer operator->() const
+    {
+      return &(operator*());
+    }
+
+    inline iterator &operator ++ ()
+    {
+      do
+      {
+        this->element = reinterpret_cast<tXMLNode *>(this->element->next);
+      }
+      while (this->element && this->element->type != XML_ELEMENT_NODE);
+      return *this;
+    }
+    inline iterator operator ++ (int)
+    {
+      iterator temp(*this);
+      operator++();
+      return temp;
+    }
+
+    inline const bool operator == (const iterator &other) const
+    {
+      return element == other.element;
+    }
+    inline const bool operator != (const iterator &other) const
+    {
+      return !(*this == other);
+    }
+  };
+
+  /*! The dtor of tXMLNode
+   */
   ~tXMLNode();
 
-  const tXMLNode &operator = (const tXMLNode &other);
+  /*! Comparison of XML node objects (inequality)
+   *
+   * \param other   The other node to compare to this one
+   *
+   * \returns Whether the two nodes are the same or not
+   */
+  void FreeNode()
+  {
+    xmlUnlinkNode(this);
+    xmlFreeNode(this);
+  }
 
-  /*! Comparison of XML node objects for find algorithm
+  /*! Comparison of XML node objects (equality)
    *
    * \param other   The other node to compare to this one
    *
@@ -158,10 +204,10 @@ public:
    */
   inline bool operator == (const tXMLNode &other) const
   {
-    return this->node == other.node;
+    return this == &other;
   }
 
-  /*! Comparison of XML node objects for find algorithm
+  /*! Comparison of XML node objects (inequality)
    *
    * \param other   The other node to compare to this one
    *
@@ -169,10 +215,34 @@ public:
    */
   inline bool operator != (const tXMLNode &other) const
   {
-    return this->node != other.node;
+    return !(*this == other);
   }
 
-  /*! Get the name of that node
+  /*! Comparison of name with given string (equality)
+   *
+   * This method can be used to find a specific node using e.g. std::find
+   *
+   * \param name   The name to be compared to the node's name
+   *
+   * \returns Whether this has the given name or not
+   */
+  inline bool operator == (const std::string &name) const
+  {
+    return this->GetName() == name;
+  }
+
+  /*! Check if this node is part of the subtree of the given node
+   *
+   * This method can be used to check if a node is contained in
+   * the subtree of another one. If this is the case it is not
+   * possible to e.g. add the root of the subtree as child to the
+   * contained node without copying.
+   *
+   * \returns Whether \a this is contained within the subtree of \a node
+   */
+  const bool IsInSubtreeOf(const tXMLNode &node) const;
+
+  /*! Get the name of this node
    *
    * Each XML element has an unique name within its document type. This
    * method provides access to the name of this node.
@@ -181,34 +251,59 @@ public:
    */
   const std::string GetName() const;
 
+  /*! Get an iterator to the first of this node's children of type XML_ELEMENT_NODE
+   *
+   * \returns A begin-iterator
+   */
+  inline const iterator GetChildrenBegin() const
+  {
+    return iterator(reinterpret_cast<tXMLNode *>(this->children));
+  }
+
+  /*! Get an end-iterator to mark the end of children traversal
+   *
+   * \returns An end-iterator
+   */
+  inline const iterator &GetChildrenEnd() const
+  {
+    static iterator end;
+    return end;
+  }
+
+  /*! Check if this node has children of type XML_ELEMENT_NODE
+   *
+   * This method can be used to check if a node has children before
+   * trying to access those, which would result in an exception if
+   * no child exists.
+   *
+   * \returns Whether \a this has children or not
+   */
   inline const bool HasChildren() const
   {
-    return this->node->children != 0 && this->node->children->type == XML_ELEMENT_NODE;
+    return this->GetChildrenBegin() != this->GetChildrenEnd();
   }
 
-  inline std::vector<tXMLNode> GetChildren() const
-  {
-    std::vector<tXMLNode> children;
-    if (this->HasChildren())
-    {
-      tXMLNode child = this->GetFirstChild();
-      do
-      {
-        children.push_back(child);
-        child = child.GetNextSibling();
-      }
-      while (child.HasNextSibling());
-    }
-    return children;
-  }
+  /*! Get access to first child of this node
+   *
+   * This method gives access to the first child of \a this
+   * which is itself of type XML_ELEMENT_NODE.
+   *
+   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   *
+   * \returns Whether \a this has children or not
+   */
+  tXMLNode &GetFirstChild();
 
-  inline tXMLNode GetFirstChild()
-  {
-    assert(this->node->children && this->node->children->type == XML_ELEMENT_NODE);
-    return this->node->children;
-  }
-
-  inline const tXMLNode GetFirstChild() const
+  /*! Get access to first child of this node in const context
+   *
+   * This method gives access to the first child of \a this
+   * which is itself of type XML_ELEMENT_NODE in const context.
+   *
+   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   *
+   * \returns Whether \a this has children or not
+   */
+  inline const tXMLNode &GetFirstChild() const
   {
     return const_cast<tXMLNode *>(this)->GetFirstChild();
   }
@@ -220,77 +315,133 @@ public:
    * the structure which then can be extended by further children or
    * attributes.
    *
-   * \note Each node can either have structural child nodes or text content,
-   * but not both at the same time.
-   *
-   * \exception tXML2WrapperException is thrown if the node already contains text content
-   *
    * \param name   The name of the new node
    *
    * \returns A reference to the newly created node
    */
-  tXMLNode AddChildNode(const std::string &name);
+  tXMLNode &AddChildNode(const std::string &name, const std::string &content = "");
 
-  tXMLNode AddChildNode(const tXMLNode &node);
+  /*! Add an existing node as child to this node
+   *
+   * This methods adds an existing node to \a this children. By default,
+   * \a node is moved with its complete subtree to its new place. It is
+   * not possible to move a node into its own subtree.
+   *
+   * If \a copy is set to true the node and its complete subtree is copied
+   * to its new place and the old version remains at its origin.
+   *
+   * \exception tXML2WrapperException is thrown if \this is contained in the subtree of \a node and \a copy is false
+   *
+   * \param node   The node to be added
+   * \param copy   Set to true if a copy of \a node should be added instead of \a node itself
+   *
+   * \returns A reference to the new child
+   */
+  tXMLNode &AddChildNode(tXMLNode &node, bool copy = false);
 
-  /*! Remove a structural child node
+  /*! Remove a child node
    *
    * Removes a given node from the children list of this node.
    *
-   * \exception tXML2WrapperException is thrown if the given node is not a child node
+   * \exception tXML2WrapperException is thrown if \a node is not a child of \a this
    *
    * \param node   The node to remove from the list
    */
   void RemoveChildNode(tXMLNode &node);
 
+  /*! Get an iterator to the next of this node's siblings of type XML_ELEMENT_NODE
+   *
+   * \returns A begin-iterator
+   */
+  const iterator GetNextSiblingsBegin() const
+  {
+    return iterator(reinterpret_cast<tXMLNode *>(this->next));
+  }
+
+  /*! Get an end-iterator to mark the end of sibling traversal
+   *
+   * \returns An end-iterator
+   */
+  const iterator &GetNextSiblingsEnd() const
+  {
+    static iterator end;
+    return end;
+  }
+
+  /*! Check if siblings of type XML_ELEMENT_NODE are reachable via \c GetNextSibling from this node
+   *
+   * This method can be used to check if a node has siblings before
+   * trying to access those, which would result in an exception if
+   * no sibling is reachable.
+   *
+   * \returns Whether a sibling is reachable or not
+   */
   inline const bool HasNextSibling()
   {
-    return this->node->next != 0 && this->node->next->type == XML_ELEMENT_NODE;
+    return this->GetNextSiblingsBegin() != this->GetNextSiblingsEnd();
   }
 
-  inline tXMLNode GetNextSibling()
-  {
-    assert(this->node->next && this->node->next->type == XML_ELEMENT_NODE);
-    return this->node->next;
-  }
+  /*! Get access to first child of this node
+   *
+   * This method gives access to the first child of \a this
+   * which is itself of type XML_ELEMENT_NODE.
+   *
+   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   *
+   * \returns Whether \a this has children or not
+   */
+  tXMLNode &GetNextSibling();
 
-  inline const tXMLNode GetNextSibling() const
+  /*! Get access to first child of this node in const context
+   *
+   * This method gives access to the first child of \a this
+   * which is itself of type XML_ELEMENT_NODE in const context.
+   *
+   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   *
+   * \returns Whether \a this has children or not
+   */
+  inline const tXMLNode &GetNextSibling() const
   {
     return const_cast<tXMLNode *>(this)->GetNextSibling();
   }
 
-  tXMLNode AddSibling(const tXMLNode &node);
+  tXMLNode &AddNextSibling(const std::string &name, const std::string &content = "");
 
-  /*! Get whether this node has text content or not
+  /*! Add an existing node as next sibling to this node
    *
-   * Instead of structural child nodes each node can have plain text content.
-   * This method determines the existence of text content and creates an
-   * internal representation for fast access (lazy evaluation). Furthermore,
-   * calling this method befor accessing the text content can be used to
-   * avoid runtim errors in form of instances of tXML2WrapperException.
+   * This methods adds an existing node to \a this siblings. By default,
+   * \a node is moved with its complete subtree to its new place. It is
+   * not possible to move a node into its own subtree.
    *
-   * \returns Whether this node has plain text content or not
+   * If \a copy is set to true the node and its complete subtree is copied
+   * to its new place and the old version remains at its origin.
+   *
+   * \exception tXML2WrapperException is thrown if \this is contained in the subtree of \a node and \a copy is false
+   *
+   * \param node   The node to be added
+   * \param copy   Set to true if a copy of \a node should be added instead of \a node itself
+   *
+   * \returns A reference to the new sibling
    */
-  const bool HasTextContent() const;
+  tXMLNode &AddNextSibling(tXMLNode &node, bool copy = false);
 
   /*! Get the plain text content of this node
    *
    * If the node contains plain text content this method grants access via
-   * a std::string reference.
+   * a std::string.
    *
    * \exception tXML2WrapperException is thrown if the node does not contain plain text content
    *
-   * \returns A reference to the plain text content
+   * \returns The plain text content
    */
-  const std::string &GetTextContent() const;
+  const std::string GetTextContent() const;
 
-  /*! Set the plain text content of this node
+  /*! Add plain text content to this node
    *
-   * \exception tXML2WrapperException is thrown if the node already has structural children
-   *
-   * \param content   The new plain text content of this node
+   * \param content   The plain text to be added to this node
    */
-  void SetTextContent(const std::string &content);
+  void AddTextContent(const std::string &content);
 
   /*! Remove the plain text content of this node
    */
@@ -307,7 +458,7 @@ public:
    */
   inline const bool HasAttribute(const std::string &name) const
   {
-    return xmlHasProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
+    return xmlHasProp(const_cast<tXMLNode *>(this), reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
   }
 
   /*! Get an XML attribute as std::string
@@ -323,7 +474,7 @@ public:
    */
   inline const std::string GetStringAttribute(const std::string &name) const
   {
-    xmlChar *temp = xmlGetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()));
+    xmlChar *temp = xmlGetProp(const_cast<tXMLNode *>(this), reinterpret_cast<const xmlChar *>(name.c_str()));
     if (!temp)
     {
       throw tXML2WrapperException("Requested attribute `" + name + "' does not exist in this node!");
@@ -556,14 +707,13 @@ public:
    *
    * \param name     The name of the attribute
    */
-  inline void RemoveAttribute(const std::string &name)
-  {
-    xmlAttrPtr attr = xmlHasProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()));
-    if (attr)
-    {
-      xmlRemoveProp(attr);
-    }
-  }
+  void RemoveAttribute(const std::string &name);
+
+  /*! Get a dump in form of xml code of the subtree starting at \a this
+   *
+   * \param format   Set to true im the dumped text should be indented
+   */
+  const std::string GetXMLDump(bool format = false) const;
 
 };
 

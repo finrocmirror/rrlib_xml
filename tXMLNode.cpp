@@ -61,40 +61,11 @@ using namespace rrlib::xml2;
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
-// tXMLNode constructors
-//----------------------------------------------------------------------
-tXMLNode::tXMLNode(xmlNodePtr node)
-    : node(node),
-    text_content(0)
-{
-  assert(node);
-  assert(node->type == XML_ELEMENT_NODE);
-  if (node->type != XML_ELEMENT_NODE)
-  {
-    throw tXML2WrapperException("Trying to construct a tXMLNode from an xml2 element that is not a node!");
-  }
-}
-
-tXMLNode::tXMLNode(const tXMLNode &other)
-    : node(other.node),
-    text_content(0)
-{}
-
-//----------------------------------------------------------------------
 // tXMLNode destructor
 //----------------------------------------------------------------------
 tXMLNode::~tXMLNode()
 {
-  delete this->text_content;
-}
-
-//----------------------------------------------------------------------
-// tXMLNode operator =
-//----------------------------------------------------------------------
-const tXMLNode &tXMLNode::operator = (const tXMLNode & other)
-{
-  this->node = other.node;
-  return *this;
+  static_assert(sizeof(tXMLNode) == sizeof(xmlNode), "Do not add any variables or virtual methods to tXMLNode!");
 }
 
 //----------------------------------------------------------------------
@@ -102,30 +73,64 @@ const tXMLNode &tXMLNode::operator = (const tXMLNode & other)
 //----------------------------------------------------------------------
 const std::string tXMLNode::GetName() const
 {
-  return reinterpret_cast<const char *>(this->node->name);
+  return reinterpret_cast<const char *>(this->name);
+}
+
+//----------------------------------------------------------------------
+// tXMLNode IsInSubtreeOf
+//----------------------------------------------------------------------
+const bool tXMLNode::IsInSubtreeOf(const tXMLNode &node) const
+{
+  const tXMLNode *current_node = this;
+  do
+  {
+    if (current_node == &node)
+    {
+      return true;
+    }
+  }
+  while ((current_node = reinterpret_cast<tXMLNode *>(current_node->parent)));
+  return false;
+}
+
+//----------------------------------------------------------------------
+// tXMLNode GetFirstChild
+//----------------------------------------------------------------------
+tXMLNode &tXMLNode::GetFirstChild()
+{
+  if (!this->HasChildren())
+  {
+    throw tXML2WrapperException("Node has no children!");
+  }
+  return *this->GetChildrenBegin();
 }
 
 //----------------------------------------------------------------------
 // tXMLNode AddChildNode
 //----------------------------------------------------------------------
-tXMLNode tXMLNode::AddChildNode(const std::string &name)
+tXMLNode &tXMLNode::AddChildNode(const std::string &name, const std::string &content)
 {
-  if (this->HasTextContent())
-  {
-    throw tXML2WrapperException("Tried to add a structural child to a node that already has text content!");
-  }
-  return xmlNewChild(this->node, 0, reinterpret_cast<const xmlChar*>(name.c_str()), 0);
+  return reinterpret_cast<tXMLNode &>(*xmlNewChild(this, 0, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(name.c_str())));
 }
 
-tXMLNode tXMLNode::AddChildNode(const tXMLNode &node)
+tXMLNode &tXMLNode::AddChildNode(tXMLNode &node, bool copy)
 {
-  xmlNodePtr child = node.node;
-  if (child->doc != this->node->doc)
+  tXMLNode *child = &node;
+  if (child->doc != this->doc)
   {
-    child = xmlDocCopyNode(child, this->node->doc, 1);
+    xmlUnlinkNode(child);
   }
-  xmlAddChild(this->node, child);
-  return child;
+  if (copy)
+  {
+    child = reinterpret_cast<tXMLNode *>(xmlDocCopyNode(child, this->doc, 1));
+  }
+  if (this->IsInSubtreeOf(*child))
+  {
+    assert(!copy);
+    throw tXML2WrapperException("Cannot add node as child to its own subtree without copying!");
+  }
+  xmlAddChild(this, child);
+  return *child;
 }
 
 //----------------------------------------------------------------------
@@ -133,101 +138,95 @@ tXMLNode tXMLNode::AddChildNode(const tXMLNode &node)
 //----------------------------------------------------------------------
 void tXMLNode::RemoveChildNode(tXMLNode &node)
 {
-  xmlNodePtr child_node = 0;
-  for (child_node = this->node->children; child_node && child_node != node.node; child_node = child_node->next);
-  if (!child_node)
+  iterator it = std::find(this->GetChildrenBegin(), this->GetChildrenEnd(), node);
+  if (it == this->GetChildrenEnd())
   {
-    throw tXML2WrapperException("Given node is not a child of this.");
+    throw tXML2WrapperException("Given node is not a child of this!");
   }
-  xmlUnlinkNode(child_node);
-  xmlFreeNode(child_node);
+  it->FreeNode();
 }
 
 //----------------------------------------------------------------------
-// tXMLNode AddSibling
+// tXMLNode GetNextSibling
 //----------------------------------------------------------------------
-tXMLNode tXMLNode::AddSibling(const tXMLNode &node)
+tXMLNode &tXMLNode::GetNextSibling()
 {
-  assert(*this != node);
-  xmlNodePtr sibling = node.node;
-  if (sibling->doc != this->node->doc)
+  if (!this->HasNextSibling())
   {
-    sibling = xmlDocCopyNode(sibling, this->node->doc, 1);
+    throw tXML2WrapperException("Node has no sibling!");
   }
-  xmlAddNextSibling(this->node, sibling);
-  return sibling;
+  return *this->GetNextSiblingsBegin();
 }
 
 //----------------------------------------------------------------------
-// tXMLNode HasTextContent
+// tXMLNode AddNextSibling
 //----------------------------------------------------------------------
-const bool tXMLNode::HasTextContent() const
+tXMLNode &tXMLNode::AddNextSibling(const std::string &name, const std::string &content)
 {
-  for (xmlNodePtr child_node = this->node->children; child_node; child_node = child_node->next)
+  tXMLNode *sibling = reinterpret_cast<tXMLNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
+  if (content != "")
   {
-    if (xmlNodeIsText(child_node))
-    {
-      xmlChar *text_content = xmlNodeGetContent(this->node);
-      if (this->text_content && std::strncmp(reinterpret_cast<const char *>(text_content), this->text_content->c_str(), this->text_content->length()) != 0)
-      {
-        delete this->text_content;
-        this->text_content = 0;
-      }
-      if (!this->text_content)
-      {
-        this->text_content = new std::string(reinterpret_cast<const char *>(text_content));
-      }
-      xmlFree(text_content);
-    }
+    xmlNodeSetContentLen(sibling, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
   }
-  return this->text_content != 0;
+  return reinterpret_cast<tXMLNode &>(*xmlAddNextSibling(this, sibling));
+}
+
+tXMLNode &tXMLNode::AddNextSibling(tXMLNode &node, bool copy)
+{
+  tXMLNode *sibling = &node;
+  if (sibling->doc != this->doc)
+  {
+    xmlUnlinkNode(sibling);
+  }
+  if (copy)
+  {
+    sibling = reinterpret_cast<tXMLNode *>(xmlDocCopyNode(sibling, this->doc, 1));
+  }
+  if (this->IsInSubtreeOf(*sibling))
+  {
+    assert(!copy);
+    throw tXML2WrapperException("Cannot add node as sibling in its own subtree without copying!");
+  }
+  xmlAddNextSibling(this, sibling);
+  return *sibling;
 }
 
 //----------------------------------------------------------------------
 // tXMLNode GetTextContent
 //----------------------------------------------------------------------
-const std::string &tXMLNode::GetTextContent() const
+const std::string tXMLNode::GetTextContent() const
 {
-  if (!this->HasTextContent())
-  {
-    throw tXML2WrapperException("This node does not have any text content!");
-  }
-  return *this->text_content;
+  xmlChar *content = xmlNodeGetContent(const_cast<tXMLNode *>(this));
+  std::string result(reinterpret_cast<const char *>(content));
+  xmlFree(content);
+  return result;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode SetTextContent
+// tXMLNode AddTextContent
 //----------------------------------------------------------------------
-void tXMLNode::SetTextContent(const std::string &content)
+void tXMLNode::AddTextContent(const std::string &content)
 {
-  if (this->HasChildren())
-  {
-    throw tXML2WrapperException("Tried to set text content in a node that already has structural children!");
-  }
-  this->RemoveTextContent();
-  xmlNodeAddContentLen(this->node, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
+  xmlNodeAddContentLen(this, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
 }
 
 //----------------------------------------------------------------------
-// tXMLNode RemoveTextNode
+// tXMLNode RemoveTextContent
 //----------------------------------------------------------------------
 void tXMLNode::RemoveTextContent()
 {
-  std::vector<xmlNodePtr> text_nodes;
-  for (xmlNodePtr child_node = this->node->children; child_node; child_node = child_node->next)
+  std::vector<tXMLNode *> nodes_to_delete;
+  for (xmlNodePtr child_node = this->children; child_node; child_node = child_node->next)
   {
     if (xmlNodeIsText(child_node))
     {
-      text_nodes.push_back(child_node);
+      nodes_to_delete.push_back(reinterpret_cast<tXMLNode *>(child_node));
     }
   }
-  for (std::vector<xmlNodePtr>::iterator it = text_nodes.begin(); it != text_nodes.end(); ++it)
+  for (std::vector<tXMLNode *>::iterator it = nodes_to_delete.begin(); it != nodes_to_delete.end(); ++it)
   {
-    xmlUnlinkNode(*it);
-    xmlFreeNode(*it);
+    (*it)->FreeNode();
   }
-  delete this->text_content;
-  this->text_content = 0;
 }
 
 //----------------------------------------------------------------------
@@ -239,10 +238,34 @@ void tXMLNode::SetStringAttribute(const std::string &name, const std::string &va
   {
     if (create)
     {
-      xmlNewProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
+      xmlNewProp(this, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
       return;
     }
     throw tXML2WrapperException("Attribute `" + name + "' does not exist in this node and creation was disabled!");
   }
-  xmlSetProp(this->node, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
+  xmlSetProp(this, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
+}
+
+//----------------------------------------------------------------------
+// tXMLNode RemoveAttribute
+//----------------------------------------------------------------------
+void tXMLNode::RemoveAttribute(const std::string &name)
+{
+  xmlAttrPtr attr = xmlHasProp(this, reinterpret_cast<const xmlChar *>(name.c_str()));
+  if (attr)
+  {
+    xmlRemoveProp(attr);
+  }
+}
+
+//----------------------------------------------------------------------
+// tXMLNode GetXMLDump
+//----------------------------------------------------------------------
+const std::string tXMLNode::GetXMLDump(bool format) const
+{
+  xmlBufferPtr buffer = xmlBufferCreate();
+  xmlNodeDump(buffer, this->doc, const_cast<tXMLNode *>(this), 0, format);
+  std::string result(reinterpret_cast<const char *>(buffer->content));
+  xmlBufferFree(buffer);
+  return result;
 }
