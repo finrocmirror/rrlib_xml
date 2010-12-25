@@ -211,6 +211,14 @@ void tXMLNode::AddTextContent(const std::string &content)
 }
 
 //----------------------------------------------------------------------
+// tXMLNode SetContent
+//----------------------------------------------------------------------
+void tXMLNode::SetContent(const std::string &content)
+{
+  xmlNodeSetContentLen(this, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
+}
+
+//----------------------------------------------------------------------
 // tXMLNode RemoveTextContent
 //----------------------------------------------------------------------
 void tXMLNode::RemoveTextContent()

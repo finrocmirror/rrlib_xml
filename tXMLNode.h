@@ -131,8 +131,11 @@ class tXMLNode : protected xmlNode, boost::noncopyable
 //----------------------------------------------------------------------
 public:
 
-  class iterator : public std::iterator<std::forward_iterator_tag, tXMLNode>
+  class const_iterator;
+
+  class iterator : public std::iterator<std::forward_iterator_tag, tXMLNode, size_t>
   {
+    friend class const_iterator;
     pointer element;
 
   public:
@@ -175,6 +178,56 @@ public:
       return element == other.element;
     }
     inline const bool operator != (const iterator &other) const
+    {
+      return !(*this == other);
+    }
+  };
+
+  class const_iterator : public std::iterator<std::forward_iterator_tag, const tXMLNode, size_t>
+  {
+    pointer element;
+
+  public:
+    inline const_iterator() : element(0) {}
+    inline const_iterator(pointer element) : element(element)
+    {
+      if (this->element && this->element->type != XML_ELEMENT_NODE)
+      {
+        operator++();
+      }
+    }
+    inline const_iterator(const iterator &other) : element(other.element) {};
+
+    inline reference operator*() const
+    {
+      return *element;
+    }
+    inline pointer operator->() const
+    {
+      return &(operator*());
+    }
+
+    inline const_iterator &operator ++ ()
+    {
+      do
+      {
+        this->element = reinterpret_cast<tXMLNode *>(this->element->next);
+      }
+      while (this->element && this->element->type != XML_ELEMENT_NODE);
+      return *this;
+    }
+    inline const_iterator operator ++ (int)
+    {
+      const_iterator temp(*this);
+      operator++();
+      return temp;
+    }
+
+    inline const bool operator == (const const_iterator &other) const
+    {
+      return element == other.element;
+    }
+    inline const bool operator != (const const_iterator &other) const
     {
       return !(*this == other);
     }
@@ -255,18 +308,37 @@ public:
    *
    * \returns A begin-iterator
    */
-  inline const iterator GetChildrenBegin() const
+  inline const iterator GetChildrenBegin()
   {
     return iterator(reinterpret_cast<tXMLNode *>(this->children));
+  }
+
+  /*! Get a const_iterator to the first of this node's children of type XML_ELEMENT_NODE
+   *
+   * \returns A begin-const_iterator
+   */
+  inline const const_iterator GetChildrenBegin() const
+  {
+    return const_iterator(reinterpret_cast<tXMLNode *>(this->children));
   }
 
   /*! Get an end-iterator to mark the end of children traversal
    *
    * \returns An end-iterator
    */
-  inline const iterator &GetChildrenEnd() const
+  inline const iterator &GetChildrenEnd()
   {
     static iterator end;
+    return end;
+  }
+
+  /*! Get a const_iterator to mark the end of children traversal
+   *
+   * \returns An end-const_iterator
+   */
+  inline const const_iterator &GetChildrenEnd() const
+  {
+    static const_iterator end;
     return end;
   }
 
@@ -353,18 +425,37 @@ public:
    *
    * \returns A begin-iterator
    */
-  const iterator GetNextSiblingsBegin() const
+  const iterator GetNextSiblingsBegin()
   {
     return iterator(reinterpret_cast<tXMLNode *>(this->next));
+  }
+
+  /*! Get a const_iterator to the next of this node's siblings of type XML_ELEMENT_NODE
+   *
+   * \returns A begin-const_iterator
+   */
+  const const_iterator GetNextSiblingsBegin() const
+  {
+    return const_iterator(reinterpret_cast<tXMLNode *>(this->next));
   }
 
   /*! Get an end-iterator to mark the end of sibling traversal
    *
    * \returns An end-iterator
    */
-  const iterator &GetNextSiblingsEnd() const
+  const iterator &GetNextSiblingsEnd()
   {
     static iterator end;
+    return end;
+  }
+
+  /*! Get a const_iterator to mark the end of sibling traversal
+   *
+   * \returns An end-const_iterator
+   */
+  const const_iterator &GetNextSiblingsEnd() const
+  {
+    static const_iterator end;
     return end;
   }
 
@@ -446,6 +537,12 @@ public:
   /*! Remove the plain text content of this node
    */
   void RemoveTextContent();
+
+  /*! Set content of node
+   *
+   * \param content   The new content
+   */
+  void SetContent(const std::string &content);
 
   /*! Get whether this node has the given attribute or not
    *
