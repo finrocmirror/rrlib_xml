@@ -85,15 +85,16 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
   tCleanupHandler::GetInstance();
 }
 
-//tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
-//    : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
-//    root_node(0)
-//{
-//  if (!this->document)
-//  {
-//    throw tXML2WrapperException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
-//  }
-//}
+tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
+    : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
+    root_node(reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document)))
+{
+  if (!this->document)
+  {
+    throw tXML2WrapperException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
+  }
+  tCleanupHandler::GetInstance();
+}
 
 //----------------------------------------------------------------------
 // tXMLDocument destructor

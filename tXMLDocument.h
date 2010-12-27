@@ -111,7 +111,20 @@ public:
    */
   explicit tXMLDocument(const std::string &file_name, bool validate = true);
 
-//  tXMLDocument(const void *buffer, size_t size, bool validate = true);
+  /*! The ctor of tXMLDocument from a memory buffer
+   *
+   * This ctor reads and parses XML content given in a memory buffer into a XML DOM
+   * representation.
+   * If needed, the XML document is also validated using an included
+   * DTD specification.
+   *
+   * \exception tXML2WrapperException is thrown if the memory buffer could not be parsed
+   *
+   * \param buffer      Pointer to the memory buffer with XML content to be parsed
+   * \param size        Size of the memory buffer
+   * \param validate    Whether the validation should be processed or not
+   */
+  explicit tXMLDocument(const void *buffer, size_t size, bool validate = true);
 
   /*! The dtor of tXMLDocument
    */

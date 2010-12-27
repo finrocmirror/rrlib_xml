@@ -729,6 +729,15 @@ public:
     return this->GetEnumAttribute<bool>(name, bool_names);
   }
 
+  /*! Get list of XML attributes of this node
+   *
+   * \returns the XML attribute list
+   */
+  xmlAttrPtr GetAttributeList() const
+  {
+    return this->properties;
+  }
+
   /*! Set an XML attribute of this node
    *
    * This methods sets the attribute with the given name to the given value.
@@ -808,9 +817,21 @@ public:
 
   /*! Get a dump in form of xml code of the subtree starting at \a this
    *
-   * \param format   Set to true im the dumped text should be indented
+   * \param format   Set to true if the dumped text should be indented
    */
   const std::string GetXMLDump(bool format = false) const;
+
+
+  /*! Get number of children of this XML node.
+   *
+   *  Counts children.
+   *
+   *  \returns number of children.
+   */
+  size_t GetNumChildren() const
+  {
+    return std::distance(this->GetChildrenBegin(), this->GetChildrenEnd());
+  }
 
 };
 
