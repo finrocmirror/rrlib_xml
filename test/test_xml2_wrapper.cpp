@@ -121,7 +121,7 @@ int main(int argc, char **argv)
   std::cout << "doc 2" << std::endl;
 
   std::cout << "Accessing node with content: " << document2.GetRootNode().GetXMLDump()
-            << " and " << document2.GetRootNode().GetNumChildren() << " children." << std::endl;
+            << " and " << document2.GetRootNode().GetNumberOfChildren() << " children." << std::endl;
 
   std::cout << document2.GetRootNode().GetName() << std::endl;
   std::cout << document2.GetRootNode().GetStringAttribute("prop_1") << std::endl;
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 
 
   std::cout << "doc 1: " << document1.GetRootNode().GetXMLDump() << std::endl
-            << " has " << document1.GetRootNode().GetNumChildren() << " children." << std::endl;
+            << " has " << document1.GetRootNode().GetNumberOfChildren() << " children." << std::endl;
 
   return EXIT_SUCCESS;
 }

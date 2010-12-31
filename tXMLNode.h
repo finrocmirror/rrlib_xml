@@ -355,6 +355,22 @@ public:
     return this->GetChildrenBegin() != this->GetChildrenEnd();
   }
 
+  /*! Get the number of children of this XML node.
+   *
+   *  Counts children.
+   *
+   *  \returns The number of XML nodes reachable as children of this node
+   */
+  inline const size_t GetNumberOfChildren() const
+  {
+    return std::distance(this->GetChildrenBegin(), this->GetChildrenEnd());
+  }
+
+  inline const size_t GetNumChildren() const __attribute__((deprecated))
+  {
+    return this->GetNumberOfChildren();
+  }
+
   /*! Get access to first child of this node
    *
    * This method gives access to the first child of \a this
@@ -731,9 +747,9 @@ public:
 
   /*! Get list of XML attributes of this node
    *
-   * \returns the XML attribute list
+   * \returns The XML attribute list
    */
-  xmlAttrPtr GetAttributeList() const
+  inline xmlAttrPtr GetAttributeList() const
   {
     return this->properties;
   }
@@ -820,18 +836,6 @@ public:
    * \param format   Set to true if the dumped text should be indented
    */
   const std::string GetXMLDump(bool format = false) const;
-
-
-  /*! Get number of children of this XML node.
-   *
-   *  Counts children.
-   *
-   *  \returns number of children.
-   */
-  size_t GetNumChildren() const
-  {
-    return std::distance(this->GetChildrenBegin(), this->GetChildrenEnd());
-  }
 
 };
 
