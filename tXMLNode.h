@@ -366,11 +366,6 @@ public:
     return std::distance(this->GetChildrenBegin(), this->GetChildrenEnd());
   }
 
-  inline const size_t GetNumChildren() const __attribute__((deprecated))
-  {
-    return this->GetNumberOfChildren();
-  }
-
   /*! Get access to first child of this node
    *
    * This method gives access to the first child of \a this
