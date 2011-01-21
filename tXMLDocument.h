@@ -130,6 +130,10 @@ public:
    */
   ~tXMLDocument();
 
+  /*! Assign operator for tXMLDocument
+   */
+  tXMLDocument& operator=(const tXMLDocument& other);
+
   /*! Get the root node of the DOM tree stored for this document
    *
    * The XML document is stored as DOM tree in memory. This method
