@@ -104,8 +104,15 @@ tXMLDocument::~tXMLDocument()
   xmlFreeDoc(this->document);
 }
 
-tXMLDocument& tXMLDocument::operator=(const tXMLDocument & other)
+//----------------------------------------------------------------------
+// tXMLDocument operator =
+//----------------------------------------------------------------------
+tXMLDocument &tXMLDocument::operator = (const tXMLDocument & other)
 {
+  if (this == &other)
+  {
+    return *this;
+  }
   xmlFreeDoc(this->document);
   this->document = xmlCopyDoc(other.document, true);
   this->root_node = reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document));

@@ -326,21 +326,13 @@ public:
    *
    * \returns An end-iterator
    */
-  inline const iterator &GetChildrenEnd()
-  {
-    static iterator end;
-    return end;
-  }
+  const iterator &GetChildrenEnd();
 
   /*! Get a const_iterator to mark the end of children traversal
    *
    * \returns An end-const_iterator
    */
-  inline const const_iterator &GetChildrenEnd() const
-  {
-    static const_iterator end;
-    return end;
-  }
+  const const_iterator &GetChildrenEnd() const;
 
   /*! Check if this node has children of type XML_ELEMENT_NODE
    *
@@ -436,7 +428,7 @@ public:
    *
    * \returns A begin-iterator
    */
-  const iterator GetNextSiblingsBegin()
+  inline const iterator GetNextSiblingsBegin()
   {
     return iterator(reinterpret_cast<tXMLNode *>(this->next));
   }
@@ -445,7 +437,7 @@ public:
    *
    * \returns A begin-const_iterator
    */
-  const const_iterator GetNextSiblingsBegin() const
+  inline const const_iterator GetNextSiblingsBegin() const
   {
     return const_iterator(reinterpret_cast<tXMLNode *>(this->next));
   }
@@ -454,21 +446,13 @@ public:
    *
    * \returns An end-iterator
    */
-  const iterator &GetNextSiblingsEnd()
-  {
-    static iterator end;
-    return end;
-  }
+  const iterator &GetNextSiblingsEnd();
 
   /*! Get a const_iterator to mark the end of sibling traversal
    *
    * \returns An end-const_iterator
    */
-  const const_iterator &GetNextSiblingsEnd() const
-  {
-    static const_iterator end;
-    return end;
-  }
+  const const_iterator &GetNextSiblingsEnd() const;
 
   /*! Check if siblings of type XML_ELEMENT_NODE are reachable via \c GetNextSibling from this node
    *

@@ -69,14 +69,6 @@ tXMLNode::~tXMLNode()
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetName
-//----------------------------------------------------------------------
-const std::string tXMLNode::GetName() const
-{
-  return reinterpret_cast<const char *>(this->name);
-}
-
-//----------------------------------------------------------------------
 // tXMLNode IsInSubtreeOf
 //----------------------------------------------------------------------
 const bool tXMLNode::IsInSubtreeOf(const tXMLNode &node) const
@@ -91,6 +83,29 @@ const bool tXMLNode::IsInSubtreeOf(const tXMLNode &node) const
   }
   while ((current_node = reinterpret_cast<tXMLNode *>(current_node->parent)));
   return false;
+}
+
+//----------------------------------------------------------------------
+// tXMLNode GetName
+//----------------------------------------------------------------------
+const std::string tXMLNode::GetName() const
+{
+  return reinterpret_cast<const char *>(this->name);
+}
+
+//----------------------------------------------------------------------
+// tXMLNode GetChildrenEnd
+//----------------------------------------------------------------------
+const tXMLNode::iterator &tXMLNode::GetChildrenEnd()
+{
+  static iterator end;
+  return end;
+}
+
+const tXMLNode::const_iterator &tXMLNode::GetChildrenEnd() const
+{
+  static const_iterator end;
+  return end;
 }
 
 //----------------------------------------------------------------------
@@ -144,6 +159,21 @@ void tXMLNode::RemoveChildNode(tXMLNode &node)
     throw tXML2WrapperException("Given node is not a child of this!");
   }
   it->FreeNode();
+}
+
+//----------------------------------------------------------------------
+// tXMLNode GetNextSiblingsEnd
+//----------------------------------------------------------------------
+const tXMLNode::iterator &tXMLNode::GetNextSiblingsEnd()
+{
+  static iterator end;
+  return end;
+}
+
+const tXMLNode::const_iterator &tXMLNode::GetNextSiblingsEnd() const
+{
+  static const_iterator end;
+  return end;
 }
 
 //----------------------------------------------------------------------
