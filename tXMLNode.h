@@ -37,8 +37,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef _rrlib_xml2_wrapper_tXMLNode_h_
-#define _rrlib_xml2_wrapper_tXMLNode_h_
+#ifndef __rrlib__xml2_wrapper__tXMLNode_h__
+#define __rrlib__xml2_wrapper__tXMLNode_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -94,40 +94,8 @@ class tXMLNode : protected xmlNode, boost::noncopyable
 {
   friend class tXMLDocument;
 
-  template <typename TNumber>
-  static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **, int), int base)
-  {
-    errno = 0;
-    char *endptr;
-    TNumber result = convert_function(value.c_str(), &endptr, base);
-    if (errno || *endptr)
-    {
-      printf("errno = %d\n*endptr = '%c'\n", errno, *endptr);
-      printf("ERANGE = %d\n", ERANGE);
-      throw tXML2WrapperException("Could not convert `" + value + "' to number!");
-    }
-    return result;
-  }
-
-  template <typename TNumber>
-  static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **))
-  {
-    errno = 0;
-    char *endptr;
-    TNumber result = convert_function(value.c_str(), &endptr);
-    if (errno || *endptr)
-    {
-      printf("errno = %d\n*endptr = '%c'\n", errno, *endptr);
-      printf("ERANGE = %d\n", ERANGE);
-      throw tXML2WrapperException("Could not convert `" + value + "' to number!");
-    }
-    return result;
-  }
-
-  void SetStringAttribute(const std::string &name, const std::string &value, bool create);
-
 //----------------------------------------------------------------------
-// Public methods
+// Public methods and typedefs
 //----------------------------------------------------------------------
 public:
 
@@ -815,6 +783,39 @@ public:
    * \param format   Set to true if the dumped text should be indented
    */
   const std::string GetXMLDump(bool format = false) const;
+
+//----------------------------------------------------------------------
+// Private fields and methods
+//----------------------------------------------------------------------
+private:
+
+  template <typename TNumber>
+  static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **, int), int base)
+  {
+    errno = 0;
+    char *endptr;
+    TNumber result = convert_function(value.c_str(), &endptr, base);
+    if (errno || *endptr)
+    {
+      throw tXML2WrapperException("Could not convert `" + value + "' to number!");
+    }
+    return result;
+  }
+
+  template <typename TNumber>
+  static const TNumber ConvertStringToNumber(const std::string &value, TNumber(&convert_function)(const char *, char **))
+  {
+    errno = 0;
+    char *endptr;
+    TNumber result = convert_function(value.c_str(), &endptr);
+    if (errno || *endptr)
+    {
+      throw tXML2WrapperException("Could not convert `" + value + "' to number!");
+    }
+    return result;
+  }
+
+  void SetStringAttribute(const std::string &name, const std::string &value, bool create);
 
 };
 

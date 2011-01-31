@@ -38,8 +38,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef _rrlib_xml2_wrapper_tXML2WrapperException_h_
-#define _rrlib_xml2_wrapper_tXML2WrapperException_h_
+#ifndef __rrlib__xml2_wrapper__tXML2WrapperException_h__
+#define __rrlib__xml2_wrapper__tXML2WrapperException_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")

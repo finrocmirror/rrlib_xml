@@ -37,8 +37,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef _rrlib_xml2_wrapper_tXMLDocument_h_
-#define _rrlib_xml2_wrapper_tXMLDocument_h_
+#ifndef __rrlib__xml2_wrapper__tXMLDocument_h__
+#define __rrlib__xml2_wrapper__tXMLDocument_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -83,11 +83,9 @@ namespace xml2
  */
 class tXMLDocument
 {
-  xmlDocPtr document;
-  mutable tXMLNode *root_node;
 
 //----------------------------------------------------------------------
-// Public methods
+// Public methods and typedefs
 //----------------------------------------------------------------------
 public:
 
@@ -124,7 +122,7 @@ public:
    * \param size        Size of the memory buffer
    * \param validate    Whether the validation should be processed or not
    */
-  explicit tXMLDocument(const void *buffer, size_t size, bool validate = true);
+  tXMLDocument(const void *buffer, size_t size, bool validate = true);
 
   /*! The dtor of tXMLDocument
    */
@@ -171,6 +169,14 @@ public:
    * \param compression   Compression level [0-9] where 0 is "no compression"
    */
   void WriteToFile(const std::string &file_name, int compression = 0) const;
+
+//----------------------------------------------------------------------
+// Private fields and methods
+//----------------------------------------------------------------------
+private:
+
+  xmlDocPtr document;
+  mutable tXMLNode *root_node;
 
 };
 

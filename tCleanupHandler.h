@@ -31,8 +31,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef _rrlib_xml2_wrapper_tCleanupHandler_h_
-#define _rrlib_xml2_wrapper_tCleanupHandler_h_
+#ifndef __rrlib__xml2_wrapper__tCleanupHandler_h__
+#define __rrlib__xml2_wrapper__tCleanupHandler_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -42,10 +42,11 @@ extern "C"
 #include <libxml/tree.h>
 }
 
+#include "rrlib/util/patterns/singleton.h"
+
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/util/patterns/singleton.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -74,7 +75,7 @@ class tCleanupHandlerImplementation
 {
 
 //----------------------------------------------------------------------
-// Public methods
+// Public methods and typedefs
 //----------------------------------------------------------------------
 public:
 
@@ -91,7 +92,7 @@ public:
 
 };
 
-typedef rrlib::util::tSingletonHolder<tCleanupHandlerImplementation, rrlib::util::CreateStatic, rrlib::util::PhoenixSingleton> tCleanupHandler;
+typedef rrlib::util::tSingletonHolder<tCleanupHandlerImplementation, rrlib::util::singleton::CreateStatic, rrlib::util::singleton::PhoenixSingleton> tCleanupHandler;
 
 //----------------------------------------------------------------------
 // End of namespace declaration
