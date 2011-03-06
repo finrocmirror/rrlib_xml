@@ -164,7 +164,7 @@ public:
         operator++();
       }
     }
-    inline const_iterator(const rrlib::xml2::tXMLNode::iterator &other) : element(other.element) {};
+    inline const_iterator(const iterator &other) : element(other.element) {};
 
     inline reference operator*() const
     {
