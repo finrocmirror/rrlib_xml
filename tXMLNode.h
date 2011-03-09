@@ -164,8 +164,8 @@ public:
         operator++();
       }
     }
-    // NOTE: the clarification rrlib::xml2::tXMLNode::iterator is necessary for gcc 4.5.2 -> DO NOT REMOVE IT!!!
-    inline const_iterator(const  rrlib::xml2::tXMLNode::iterator &other) : element(other.element) {};
+    // NOTE: the clarification tXMLNode::iterator is necessary for gcc 4.5.2 -> DO NOT REMOVE IT!!!
+    inline const_iterator(const  tXMLNode::iterator &other) : element(other.element) {};
 
     inline reference operator*() const
     {
