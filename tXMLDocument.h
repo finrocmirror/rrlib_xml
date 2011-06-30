@@ -143,7 +143,7 @@ public:
 
   inline const tXMLNode &GetRootNode() const
   {
-    return const_cast<const tXMLDocument *>(this)->GetRootNode();
+    return const_cast<tXMLDocument *>(this)->GetRootNode();
   }
 
   /*! Add a root node to a new document in DOM representation
