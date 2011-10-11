@@ -125,7 +125,8 @@ tXMLNode &tXMLNode::GetFirstChild()
 //----------------------------------------------------------------------
 tXMLNode &tXMLNode::AddChildNode(const std::string &name, const std::string &content)
 {
-  return reinterpret_cast<tXMLNode &>(*xmlNewChild(this, 0, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(content.c_str())));
+  const char* c = (content.length() == 0) ? NULL : content.c_str();
+  return reinterpret_cast<tXMLNode &>(*xmlNewChild(this, 0, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(c)));
 }
 
 tXMLNode &tXMLNode::AddChildNode(tXMLNode &node, bool copy)
