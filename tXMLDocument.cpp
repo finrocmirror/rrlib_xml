@@ -96,12 +96,23 @@ tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
   tCleanupHandler::GetInstance();
 }
 
+tXMLDocument::tXMLDocument(tXMLDocument && other)
+    : document(0),
+    root_node(0)
+{
+  std::swap(document, other.document);
+  std::swap(root_node, other.root_node);
+}
+
 //----------------------------------------------------------------------
 // tXMLDocument destructor
 //----------------------------------------------------------------------
 tXMLDocument::~tXMLDocument()
 {
-  xmlFreeDoc(this->document);
+  if (this->document)
+  {
+    xmlFreeDoc(this->document);
+  }
 }
 
 //----------------------------------------------------------------------

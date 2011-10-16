@@ -124,6 +124,11 @@ public:
    */
   tXMLDocument(const void *buffer, size_t size, bool validate = true);
 
+  /*!
+   * move constructor
+   */
+  tXMLDocument(tXMLDocument && other);
+
   /*! The dtor of tXMLDocument
    */
   ~tXMLDocument();
@@ -178,6 +183,7 @@ private:
   xmlDocPtr document;
   mutable tXMLNode *root_node;
 
+  tXMLDocument(const tXMLDocument&); // generated copy-constructor is not safe
 };
 
 //----------------------------------------------------------------------
