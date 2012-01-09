@@ -70,7 +70,7 @@ tXMLDocument::tXMLDocument()
     root_node(0)
 {
   assert(this->document);
-  tCleanupHandler::GetInstance();
+  tCleanupHandler::Instance();
 }
 
 tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
@@ -82,7 +82,7 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
   {
     throw tXML2WrapperException("Could not parse XML file `" + file_name + "'!");
   }
-  tCleanupHandler::GetInstance();
+  tCleanupHandler::Instance();
 }
 
 tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
@@ -93,7 +93,7 @@ tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
   {
     throw tXML2WrapperException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
   }
-  tCleanupHandler::GetInstance();
+  tCleanupHandler::Instance();
 }
 
 tXMLDocument::tXMLDocument(tXMLDocument && other)

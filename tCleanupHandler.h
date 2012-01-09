@@ -92,7 +92,7 @@ public:
 
 };
 
-typedef rrlib::util::tSingletonHolder<tCleanupHandlerImplementation, rrlib::util::singleton::CreateStatic, rrlib::util::singleton::PhoenixSingleton> tCleanupHandler;
+typedef rrlib::util::tSingletonHolder<tCleanupHandlerImplementation, rrlib::util::singleton::PhoenixSingleton> tCleanupHandler;
 
 //----------------------------------------------------------------------
 // End of namespace declaration
