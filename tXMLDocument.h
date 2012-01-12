@@ -144,11 +144,11 @@ public:
    *
    * \returns A reference to the root node
    */
-  tXMLNode &GetRootNode();
+  tXMLNode &RootNode();
 
-  inline const tXMLNode &GetRootNode() const
+  inline const tXMLNode &RootNode() const
   {
-    return const_cast<tXMLDocument *>(this)->GetRootNode();
+    return const_cast<tXMLDocument *>(this)->RootNode();
   }
 
   /*! Add a root node to a new document in DOM representation

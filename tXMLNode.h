@@ -240,19 +240,6 @@ public:
     return !(*this == other);
   }
 
-  /*! Comparison of name with given string (equality)
-   *
-   * This method can be used to find a specific node using e.g. std::find
-   *
-   * \param name   The name to be compared to the node's name
-   *
-   * \returns Whether this has the given name or not
-   */
-  inline bool operator == (const std::string &name) const
-  {
-    return this->GetName() == name;
-  }
-
   /*! Check if this node is part of the subtree of the given node
    *
    * This method can be used to check if a node is contained in
@@ -271,13 +258,13 @@ public:
    *
    * \returns A reference to the node's name
    */
-  const std::string GetName() const;
+  const std::string Name() const;
 
   /*! Get an iterator to the first of this node's children of type XML_ELEMENT_NODE
    *
    * \returns A begin-iterator
    */
-  inline const iterator GetChildrenBegin()
+  inline const iterator ChildrenBegin()
   {
     return iterator(reinterpret_cast<tXMLNode *>(this->children));
   }
@@ -286,7 +273,7 @@ public:
    *
    * \returns A begin-const_iterator
    */
-  inline const const_iterator GetChildrenBegin() const
+  inline const const_iterator ChildrenBegin() const
   {
     return const_iterator(reinterpret_cast<tXMLNode *>(this->children));
   }
@@ -295,13 +282,13 @@ public:
    *
    * \returns An end-iterator
    */
-  const iterator &GetChildrenEnd();
+  const iterator &ChildrenEnd();
 
   /*! Get a const_iterator to mark the end of children traversal
    *
    * \returns An end-const_iterator
    */
-  const const_iterator &GetChildrenEnd() const;
+  const const_iterator &ChildrenEnd() const;
 
   /*! Check if this node has children of type XML_ELEMENT_NODE
    *
@@ -313,7 +300,7 @@ public:
    */
   inline const bool HasChildren() const
   {
-    return this->GetChildrenBegin() != this->GetChildrenEnd();
+    return this->ChildrenBegin() != this->ChildrenEnd();
   }
 
   /*! Get the number of children of this XML node.
@@ -324,7 +311,7 @@ public:
    */
   inline const size_t GetNumberOfChildren() const
   {
-    return std::distance(this->GetChildrenBegin(), this->GetChildrenEnd());
+    return std::distance(this->ChildrenBegin(), this->ChildrenEnd());
   }
 
   /*! Get access to first child of this node
@@ -336,7 +323,7 @@ public:
    *
    * \returns Whether \a this has children or not
    */
-  tXMLNode &GetFirstChild();
+  tXMLNode &FirstChild();
 
   /*! Get access to first child of this node in const context
    *
@@ -347,9 +334,9 @@ public:
    *
    * \returns Whether \a this has children or not
    */
-  inline const tXMLNode &GetFirstChild() const
+  inline const tXMLNode &FirstChild() const
   {
-    return const_cast<tXMLNode *>(this)->GetFirstChild();
+    return const_cast<tXMLNode *>(this)->FirstChild();
   }
 
   /*! Add a child to this node
@@ -397,7 +384,7 @@ public:
    *
    * \returns A begin-iterator
    */
-  inline const iterator GetNextSiblingsBegin()
+  inline const iterator NextSiblingsBegin()
   {
     return iterator(reinterpret_cast<tXMLNode *>(this->next));
   }
@@ -406,7 +393,7 @@ public:
    *
    * \returns A begin-const_iterator
    */
-  inline const const_iterator GetNextSiblingsBegin() const
+  inline const const_iterator NextSiblingsBegin() const
   {
     return const_iterator(reinterpret_cast<tXMLNode *>(this->next));
   }
@@ -415,13 +402,13 @@ public:
    *
    * \returns An end-iterator
    */
-  const iterator &GetNextSiblingsEnd();
+  const iterator &NextSiblingsEnd();
 
   /*! Get a const_iterator to mark the end of sibling traversal
    *
    * \returns An end-const_iterator
    */
-  const const_iterator &GetNextSiblingsEnd() const;
+  const const_iterator &NextSiblingsEnd() const;
 
   /*! Check if siblings of type XML_ELEMENT_NODE are reachable via \c GetNextSibling from this node
    *
@@ -433,7 +420,7 @@ public:
    */
   inline const bool HasNextSibling()
   {
-    return this->GetNextSiblingsBegin() != this->GetNextSiblingsEnd();
+    return this->NextSiblingsBegin() != this->NextSiblingsEnd();
   }
 
   /*! Get access to first child of this node
@@ -445,7 +432,7 @@ public:
    *
    * \returns Whether \a this has children or not
    */
-  tXMLNode &GetNextSibling();
+  tXMLNode &NextSibling();
 
   /*! Get access to first child of this node in const context
    *
@@ -456,9 +443,9 @@ public:
    *
    * \returns Whether \a this has children or not
    */
-  inline const tXMLNode &GetNextSibling() const
+  inline const tXMLNode &NextSibling() const
   {
-    return const_cast<tXMLNode *>(this)->GetNextSibling();
+    return const_cast<tXMLNode *>(this)->NextSibling();
   }
 
   tXMLNode &AddNextSibling(const std::string &name, const std::string &content = "");
@@ -576,7 +563,7 @@ public:
    */
   inline const long int GetLongIntAttribute(const std::string &name, int base = 10) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtol, base);
+    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtol, base);
   }
 
   /*! Get an XML attribute as long long int
@@ -594,7 +581,7 @@ public:
    */
   inline const long long int GetLongLongIntAttribute(const std::string &name, int base = 10) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtoll, base);
+    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtoll, base);
   }
 
   /*! Get an XML attribute as float
@@ -610,7 +597,7 @@ public:
    */
   inline const float GetFloatAttribute(const std::string &name) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtof);
+    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtof);
   }
 
   /*! Get an XML attribute as double
@@ -626,7 +613,7 @@ public:
    */
   inline const double GetDoubleAttribute(const std::string &name) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtod);
+    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtod);
   }
 
   /*! Get an XML attribute as long double
@@ -642,7 +629,7 @@ public:
    */
   inline const long double GetLongDoubleAttribute(const std::string &name) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), strtold);
+    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtold);
   }
 
   /*! Get an XML attribute as enum
@@ -667,7 +654,7 @@ public:
     std::vector<std::string>::const_iterator it = std::find(enum_names.begin(), enum_names.end(), value);
     if (it == enum_names.end())
     {
-      throw tXML2WrapperException("Invalid value for " + this->GetName() + "." + name + ": `" + value + "'");
+      throw tXML2WrapperException("Invalid value for " + this->Name() + "." + name + ": `" + value + "'");
     }
     return static_cast<TEnum>(std::distance(enum_names.begin(), it));
   }
@@ -686,10 +673,7 @@ public:
    */
   inline const bool GetBoolAttribute(const std::string &name) const
   {
-    static const char *bool_names_init[2] = { "false", "true" };
-    static const std::vector<std::string> bool_names(bool_names_init, bool_names_init + 2);
-    // FIXME: with c++0x this can be static const std::vector<std::string> bool_strings = { "false", "true" };
-
+    static const std::vector<std::string> bool_names = { "false", "true" };
     return this->GetEnumAttribute<bool>(name, bool_names);
   }
 

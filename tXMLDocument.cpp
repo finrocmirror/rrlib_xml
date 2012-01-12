@@ -131,9 +131,9 @@ tXMLDocument &tXMLDocument::operator = (const tXMLDocument & other)
 }
 
 //----------------------------------------------------------------------
-// tXMLDocument GetRootNode
+// tXMLDocument RootNode
 //----------------------------------------------------------------------
-tXMLNode &tXMLDocument::GetRootNode()
+tXMLNode &tXMLDocument::RootNode()
 {
   if (!this->root_node)
   {

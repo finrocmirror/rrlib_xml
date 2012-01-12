@@ -86,38 +86,38 @@ const bool tXMLNode::IsInSubtreeOf(const tXMLNode &node) const
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetName
+// tXMLNode Name
 //----------------------------------------------------------------------
-const std::string tXMLNode::GetName() const
+const std::string tXMLNode::Name() const
 {
   return reinterpret_cast<const char *>(this->name);
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetChildrenEnd
+// tXMLNode ChildrenEnd
 //----------------------------------------------------------------------
-const tXMLNode::iterator &tXMLNode::GetChildrenEnd()
+const tXMLNode::iterator &tXMLNode::ChildrenEnd()
 {
   static iterator end;
   return end;
 }
 
-const tXMLNode::const_iterator &tXMLNode::GetChildrenEnd() const
+const tXMLNode::const_iterator &tXMLNode::ChildrenEnd() const
 {
   static const_iterator end;
   return end;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetFirstChild
+// tXMLNode FirstChild
 //----------------------------------------------------------------------
-tXMLNode &tXMLNode::GetFirstChild()
+tXMLNode &tXMLNode::FirstChild()
 {
   if (!this->HasChildren())
   {
     throw tXML2WrapperException("Node has no children!");
   }
-  return *this->GetChildrenBegin();
+  return *this->ChildrenBegin();
 }
 
 //----------------------------------------------------------------------
@@ -154,8 +154,8 @@ tXMLNode &tXMLNode::AddChildNode(tXMLNode &node, bool copy)
 //----------------------------------------------------------------------
 void tXMLNode::RemoveChildNode(tXMLNode &node)
 {
-  iterator it = std::find(this->GetChildrenBegin(), this->GetChildrenEnd(), node);
-  if (it == this->GetChildrenEnd())
+  iterator it = std::find(this->ChildrenBegin(), this->ChildrenEnd(), node);
+  if (it == this->ChildrenEnd())
   {
     throw tXML2WrapperException("Given node is not a child of this!");
   }
@@ -163,30 +163,30 @@ void tXMLNode::RemoveChildNode(tXMLNode &node)
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetNextSiblingsEnd
+// tXMLNode NextSiblingsEnd
 //----------------------------------------------------------------------
-const tXMLNode::iterator &tXMLNode::GetNextSiblingsEnd()
+const tXMLNode::iterator &tXMLNode::NextSiblingsEnd()
 {
   static iterator end;
   return end;
 }
 
-const tXMLNode::const_iterator &tXMLNode::GetNextSiblingsEnd() const
+const tXMLNode::const_iterator &tXMLNode::NextSiblingsEnd() const
 {
   static const_iterator end;
   return end;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetNextSibling
+// tXMLNode NextSibling
 //----------------------------------------------------------------------
-tXMLNode &tXMLNode::GetNextSibling()
+tXMLNode &tXMLNode::NextSibling()
 {
   if (!this->HasNextSibling())
   {
     throw tXML2WrapperException("Node has no sibling!");
   }
-  return *this->GetNextSiblingsBegin();
+  return *this->NextSiblingsBegin();
 }
 
 //----------------------------------------------------------------------
