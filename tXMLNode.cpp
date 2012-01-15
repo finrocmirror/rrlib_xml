@@ -46,7 +46,14 @@
 //----------------------------------------------------------------------
 // Namespace usage
 //----------------------------------------------------------------------
-using namespace rrlib::xml2;
+
+//----------------------------------------------------------------------
+// Namespace declaration
+//----------------------------------------------------------------------
+namespace rrlib
+{
+namespace xml2
+{
 
 //----------------------------------------------------------------------
 // Forward declarations / typedefs / enums
@@ -307,4 +314,10 @@ const std::string tXMLNode::GetXMLDump(bool format) const
   std::string result(reinterpret_cast<const char *>(buffer->content));
   xmlBufferFree(buffer);
   return result;
+}
+
+//----------------------------------------------------------------------
+// End of namespace declaration
+//----------------------------------------------------------------------
+}
 }

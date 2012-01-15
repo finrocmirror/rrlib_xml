@@ -48,7 +48,14 @@
 //----------------------------------------------------------------------
 // Namespace usage
 //----------------------------------------------------------------------
-using namespace rrlib::xml2;
+
+//----------------------------------------------------------------------
+// Namespace declaration
+//----------------------------------------------------------------------
+namespace rrlib
+{
+namespace xml2
+{
 
 //----------------------------------------------------------------------
 // Forward declarations / typedefs / enums
@@ -166,4 +173,10 @@ void tXMLDocument::WriteToFile(const std::string &file_name, int compression) co
     xmlSetDocCompressMode(this->document, compression);
   }
   xmlSaveFormatFileEnc(file_name.c_str(), this->document, "UTF-8", 1);
+}
+
+//----------------------------------------------------------------------
+// End of namespace declaration
+//----------------------------------------------------------------------
+}
 }
