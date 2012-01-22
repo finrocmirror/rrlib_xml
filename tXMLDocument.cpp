@@ -73,7 +73,7 @@ namespace xml2
 // tXMLDocument constructors
 //----------------------------------------------------------------------
 tXMLDocument::tXMLDocument()
-    : document(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"))),
+  : document(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"))),
     root_node(0)
 {
   assert(this->document);
@@ -81,7 +81,7 @@ tXMLDocument::tXMLDocument()
 }
 
 tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
-    : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
+  : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
     root_node(reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document)))
 {
   assert(this->document);
@@ -93,7 +93,7 @@ tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
 }
 
 tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
-    : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
+  : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
     root_node(reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document)))
 {
   if (!this->document)
@@ -104,7 +104,7 @@ tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
 }
 
 tXMLDocument::tXMLDocument(tXMLDocument && other)
-    : document(0),
+  : document(0),
     root_node(0)
 {
   std::swap(document, other.document);

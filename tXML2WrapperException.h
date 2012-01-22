@@ -92,7 +92,7 @@ public:
    * \param message   A message that describes the error
    */
   tXML2WrapperException(const std::string &message)
-      : std::runtime_error(message)
+    : std::runtime_error(message)
   {}
 
 };
