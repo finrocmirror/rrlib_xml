@@ -5,6 +5,8 @@
   <rrlib name="xml2_wrapper"
         libs="xml2">
     <sources>
+      tCleanupHandler.h
+      tXML2WrapperException.h
       *.cpp
     </sources>
   </rrlib>
