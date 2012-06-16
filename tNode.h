@@ -19,15 +19,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    tXMLNode.h
+/*!\file    tNode.h
  *
  * \author  Tobias Foehst
  *
  * \date    2010-06-24
  *
- * \brief Contains tXMLNode
+ * \brief Contains tNode
  *
- * \b tXMLNode
+ * \b tNode
  *
  * If an XML document is loaded for full access to its content, a DOM
  * tree is generated consisting of nodes with attributes. This class
@@ -37,8 +37,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef __rrlib__xml2_wrapper__tXMLNode_h__
-#define __rrlib__xml2_wrapper__tXMLNode_h__
+#ifndef __rrlib__xml__tNode_h__
+#define __rrlib__xml__tNode_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -60,7 +60,7 @@ extern "C"
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXML2WrapperException.h"
+#include "rrlib/xml/tException.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -72,7 +72,7 @@ extern "C"
 //----------------------------------------------------------------------
 namespace rrlib
 {
-namespace xml2
+namespace xml
 {
 
 //----------------------------------------------------------------------
@@ -90,9 +90,9 @@ namespace xml2
  *  they are used.
  *
  */
-class tXMLNode : protected xmlNode, boost::noncopyable
+class tNode : protected xmlNode, boost::noncopyable
 {
-  friend class tXMLDocument;
+  friend class tDocument;
 
 //----------------------------------------------------------------------
 // Public methods and typedefs
@@ -101,7 +101,7 @@ public:
 
   class const_iterator;
 
-  class iterator : public std::iterator<std::forward_iterator_tag, tXMLNode, size_t>
+  class iterator : public std::iterator<std::forward_iterator_tag, tNode, size_t>
   {
     friend class const_iterator;
     pointer element;
@@ -129,7 +129,7 @@ public:
     {
       do
       {
-        this->element = reinterpret_cast<tXMLNode *>(this->element->next);
+        this->element = reinterpret_cast<tNode *>(this->element->next);
       }
       while (this->element && this->element->type != XML_ELEMENT_NODE);
       return *this;
@@ -151,7 +151,7 @@ public:
     }
   };
 
-  class const_iterator : public std::iterator<std::forward_iterator_tag, const tXMLNode, size_t>
+  class const_iterator : public std::iterator<std::forward_iterator_tag, const tNode, size_t>
   {
     pointer element;
 
@@ -164,8 +164,8 @@ public:
         operator++();
       }
     }
-    // NOTE: the clarification tXMLNode::iterator is necessary for gcc 4.5.2 -> DO NOT REMOVE IT!!!
-    inline const_iterator(const  tXMLNode::iterator &other) : element(other.element) {};
+    // NOTE: the clarification tNode::iterator is necessary for gcc 4.5.2 -> DO NOT REMOVE IT!!!
+    inline const_iterator(const  tNode::iterator &other) : element(other.element) {};
 
     inline reference operator*() const
     {
@@ -180,7 +180,7 @@ public:
     {
       do
       {
-        this->element = reinterpret_cast<tXMLNode *>(this->element->next);
+        this->element = reinterpret_cast<tNode *>(this->element->next);
       }
       while (this->element && this->element->type != XML_ELEMENT_NODE);
       return *this;
@@ -202,9 +202,9 @@ public:
     }
   };
 
-  /*! The dtor of tXMLNode
+  /*! The dtor of tNode
    */
-  ~tXMLNode();
+  ~tNode();
 
   /*! Comparison of XML node objects (inequality)
    *
@@ -224,7 +224,7 @@ public:
    *
    * \returns Whether the two nodes are the same or not
    */
-  inline bool operator == (const tXMLNode &other) const
+  inline bool operator == (const tNode &other) const
   {
     return this == &other;
   }
@@ -235,7 +235,7 @@ public:
    *
    * \returns Whether the two nodes are the same or not
    */
-  inline bool operator != (const tXMLNode &other) const
+  inline bool operator != (const tNode &other) const
   {
     return !(*this == other);
   }
@@ -249,7 +249,7 @@ public:
    *
    * \returns Whether \a this is contained within the subtree of \a node
    */
-  const bool IsInSubtreeOf(const tXMLNode &node) const;
+  const bool IsInSubtreeOf(const tNode &node) const;
 
   /*! Get the name of this node
    *
@@ -266,7 +266,7 @@ public:
    */
   inline const iterator ChildrenBegin()
   {
-    return iterator(reinterpret_cast<tXMLNode *>(this->children));
+    return iterator(reinterpret_cast<tNode *>(this->children));
   }
 
   /*! Get a const_iterator to the first of this node's children of type XML_ELEMENT_NODE
@@ -275,7 +275,7 @@ public:
    */
   inline const const_iterator ChildrenBegin() const
   {
-    return const_iterator(reinterpret_cast<tXMLNode *>(this->children));
+    return const_iterator(reinterpret_cast<tNode *>(this->children));
   }
 
   /*! Get an end-iterator to mark the end of children traversal
@@ -319,24 +319,24 @@ public:
    * This method gives access to the first child of \a this
    * which is itself of type XML_ELEMENT_NODE.
    *
-   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
    *
    * \returns Whether \a this has children or not
    */
-  tXMLNode &FirstChild();
+  tNode &FirstChild();
 
   /*! Get access to first child of this node in const context
    *
    * This method gives access to the first child of \a this
    * which is itself of type XML_ELEMENT_NODE in const context.
    *
-   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
    *
    * \returns Whether \a this has children or not
    */
-  inline const tXMLNode &FirstChild() const
+  inline const tNode &FirstChild() const
   {
-    return const_cast<tXMLNode *>(this)->FirstChild();
+    return const_cast<tNode *>(this)->FirstChild();
   }
 
   /*! Add a child to this node
@@ -350,7 +350,7 @@ public:
    *
    * \returns A reference to the newly created node
    */
-  tXMLNode &AddChildNode(const std::string &name, const std::string &content = "");
+  tNode &AddChildNode(const std::string &name, const std::string &content = "");
 
   /*! Add an existing node as child to this node
    *
@@ -361,24 +361,24 @@ public:
    * If \a copy is set to true the node and its complete subtree is copied
    * to its new place and the old version remains at its origin.
    *
-   * \exception tXML2WrapperException is thrown if \this is contained in the subtree of \a node and \a copy is false
+   * \exception tException is thrown if \this is contained in the subtree of \a node and \a copy is false
    *
    * \param node   The node to be added
    * \param copy   Set to true if a copy of \a node should be added instead of \a node itself
    *
    * \returns A reference to the new child
    */
-  tXMLNode &AddChildNode(tXMLNode &node, bool copy = false);
+  tNode &AddChildNode(tNode &node, bool copy = false);
 
   /*! Remove a child node
    *
    * Removes a given node from the children list of this node.
    *
-   * \exception tXML2WrapperException is thrown if \a node is not a child of \a this
+   * \exception tException is thrown if \a node is not a child of \a this
    *
    * \param node   The node to remove from the list
    */
-  void RemoveChildNode(tXMLNode &node);
+  void RemoveChildNode(tNode &node);
 
   /*! Get an iterator to the next of this node's siblings of type XML_ELEMENT_NODE
    *
@@ -386,7 +386,7 @@ public:
    */
   inline const iterator NextSiblingsBegin()
   {
-    return iterator(reinterpret_cast<tXMLNode *>(this->next));
+    return iterator(reinterpret_cast<tNode *>(this->next));
   }
 
   /*! Get a const_iterator to the next of this node's siblings of type XML_ELEMENT_NODE
@@ -395,7 +395,7 @@ public:
    */
   inline const const_iterator NextSiblingsBegin() const
   {
-    return const_iterator(reinterpret_cast<tXMLNode *>(this->next));
+    return const_iterator(reinterpret_cast<tNode *>(this->next));
   }
 
   /*! Get an end-iterator to mark the end of sibling traversal
@@ -428,27 +428,27 @@ public:
    * This method gives access to the first child of \a this
    * which is itself of type XML_ELEMENT_NODE.
    *
-   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
    *
    * \returns Whether \a this has children or not
    */
-  tXMLNode &NextSibling();
+  tNode &NextSibling();
 
   /*! Get access to first child of this node in const context
    *
    * This method gives access to the first child of \a this
    * which is itself of type XML_ELEMENT_NODE in const context.
    *
-   * \exception tXML2WrapperException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
    *
    * \returns Whether \a this has children or not
    */
-  inline const tXMLNode &NextSibling() const
+  inline const tNode &NextSibling() const
   {
-    return const_cast<tXMLNode *>(this)->NextSibling();
+    return const_cast<tNode *>(this)->NextSibling();
   }
 
-  tXMLNode &AddNextSibling(const std::string &name, const std::string &content = "");
+  tNode &AddNextSibling(const std::string &name, const std::string &content = "");
 
   /*! Add an existing node as next sibling to this node
    *
@@ -459,21 +459,21 @@ public:
    * If \a copy is set to true the node and its complete subtree is copied
    * to its new place and the old version remains at its origin.
    *
-   * \exception tXML2WrapperException is thrown if \this is contained in the subtree of \a node and \a copy is false
+   * \exception tException is thrown if \this is contained in the subtree of \a node and \a copy is false
    *
    * \param node   The node to be added
    * \param copy   Set to true if a copy of \a node should be added instead of \a node itself
    *
    * \returns A reference to the new sibling
    */
-  tXMLNode &AddNextSibling(tXMLNode &node, bool copy = false);
+  tNode &AddNextSibling(tNode &node, bool copy = false);
 
   /*! Get the plain text content of this node
    *
    * If the node contains plain text content this method grants access via
    * a std::string.
    *
-   * \exception tXML2WrapperException is thrown if the node does not contain plain text content
+   * \exception tException is thrown if the node does not contain plain text content
    *
    * \returns The plain text content
    */
@@ -500,13 +500,13 @@ public:
    * Each XML node can have several attributes. Calling this method
    * before accessing an attribute using its name gives information
    * about its availability and thus can be used to avoid runtime
-   * errors in form of instances of tXML2WrapperException.
+   * errors in form of instances of tException.
    *
    * \returns Whether this node has the given attribute or not
    */
   inline const bool HasAttribute(const std::string &name) const
   {
-    return xmlHasProp(const_cast<tXMLNode *>(this), reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
+    return xmlHasProp(const_cast<tNode *>(this), reinterpret_cast<const xmlChar *>(name.c_str())) != 0;
   }
 
   /*! Get an XML attribute as std::string
@@ -514,7 +514,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as string.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute is not available
+   * \exception tException is thrown if the requested attribute is not available
    *
    * \param name   The name of the attribute
    *
@@ -522,10 +522,10 @@ public:
    */
   inline const std::string GetStringAttribute(const std::string &name) const
   {
-    xmlChar *temp = xmlGetProp(const_cast<tXMLNode *>(this), reinterpret_cast<const xmlChar *>(name.c_str()));
+    xmlChar *temp = xmlGetProp(const_cast<tNode *>(this), reinterpret_cast<const xmlChar *>(name.c_str()));
     if (!temp)
     {
-      throw tXML2WrapperException("Requested attribute `" + name + "' does not exist in this node!");
+      throw tException("Requested attribute `" + name + "' does not exist in this node!");
     }
     std::string result(reinterpret_cast<char *>(temp));
     xmlFree(temp);
@@ -537,7 +537,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as int.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is available or not a number
    *
    * \param name   The name of the attribute
    * \param base   The base that should be used for number interpretation
@@ -554,7 +554,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as long int.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is available or not a number
    *
    * \param name   The name of the attribute
    * \param base   The base that should be used for number interpretation
@@ -563,7 +563,7 @@ public:
    */
   inline const long int GetLongIntAttribute(const std::string &name, int base = 10) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtol, base);
+    return tNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtol, base);
   }
 
   /*! Get an XML attribute as long long int
@@ -572,7 +572,7 @@ public:
    * the given name, its value is returned by this method as long long
    * int.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is available or not a number
    *
    * \param name   The name of the attribute
    * \param base   The base that should be used for number interpretation
@@ -581,7 +581,7 @@ public:
    */
   inline const long long int GetLongLongIntAttribute(const std::string &name, int base = 10) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtoll, base);
+    return tNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtoll, base);
   }
 
   /*! Get an XML attribute as float
@@ -589,7 +589,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as float.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is available or not a number
    *
    * \param name   The name of the attribute
    *
@@ -597,7 +597,7 @@ public:
    */
   inline const float GetFloatAttribute(const std::string &name) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtof);
+    return tNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtof);
   }
 
   /*! Get an XML attribute as double
@@ -605,7 +605,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as double.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is available or not a number
    *
    * \param name   The name of the attribute
    *
@@ -613,7 +613,7 @@ public:
    */
   inline const double GetDoubleAttribute(const std::string &name) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtod);
+    return tNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtod);
   }
 
   /*! Get an XML attribute as long double
@@ -621,7 +621,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as long double.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is available or not a number
    *
    * \param name   The name of the attribute
    *
@@ -629,7 +629,7 @@ public:
    */
   inline const long double GetLongDoubleAttribute(const std::string &name) const
   {
-    return tXMLNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtold);
+    return tNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtold);
   }
 
   /*! Get an XML attribute as enum
@@ -640,7 +640,7 @@ public:
    * be provided. The method then returns the index of the name that
    * was found in the attribute.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not a member of given vector
+   * \exception tException is thrown if the requested attribute's value is available or not a member of given vector
    *
    * \param name         The name of the attribute
    * \param enum_names   The names of the enumeration elements
@@ -654,7 +654,7 @@ public:
     std::vector<std::string>::const_iterator it = std::find(enum_names.begin(), enum_names.end(), value);
     if (it == enum_names.end())
     {
-      throw tXML2WrapperException("Invalid value for " + this->Name() + "." + name + ": `" + value + "'");
+      throw tException("Invalid value for " + this->Name() + "." + name + ": `" + value + "'");
     }
     return static_cast<TEnum>(std::distance(enum_names.begin(), it));
   }
@@ -665,7 +665,7 @@ public:
    * the given name, its value is returned by this method interpreted
    * as bool.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute's value is available or not true/false
+   * \exception tException is thrown if the requested attribute's value is available or not true/false
    *
    * \param name   The name of the attribute
    *
@@ -694,7 +694,7 @@ public:
    *
    * \note The value type must support streaming to be serialized
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   * \exception tException is thrown if the requested attribute does not exist and should not be created
    *
    * \param name     The name of the attribute
    * \param value    The new value
@@ -713,7 +713,7 @@ public:
    * This is a method for special handling of bool values which should be serialized
    * into "true" and "false" instead of int representation.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   * \exception tException is thrown if the requested attribute does not exist and should not be created
    *
    * \param name     The name of the attribute
    * \param value    The new value
@@ -729,7 +729,7 @@ public:
    * This is a method for special handling of string values which do not have to be
    * serialized via stringstream.
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   * \exception tException is thrown if the requested attribute does not exist and should not be created
    *
    * \param name     The name of the attribute
    * \param value    The new value
@@ -746,7 +746,7 @@ public:
    * serialized via stringstream (needed because implicit conversion does not work due
    * to the template version of this method).
    *
-   * \exception tXML2WrapperException is thrown if the requested attribute does not exist and should not be created
+   * \exception tException is thrown if the requested attribute does not exist and should not be created
    *
    * \param name     The name of the attribute
    * \param value    The new value
@@ -782,7 +782,7 @@ private:
     TNumber result = convert_function(value.c_str(), &endptr, base);
     if (errno || *endptr)
     {
-      throw tXML2WrapperException("Could not convert `" + value + "' to number!");
+      throw tException("Could not convert `" + value + "' to number!");
     }
     return result;
   }
@@ -795,7 +795,7 @@ private:
     TNumber result = convert_function(value.c_str(), &endptr);
     if (errno || *endptr)
     {
-      throw tXML2WrapperException("Could not convert `" + value + "' to number!");
+      throw tException("Could not convert `" + value + "' to number!");
     }
     return result;
   }

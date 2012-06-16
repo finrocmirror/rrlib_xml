@@ -19,27 +19,27 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    tXML2WrapperException.h
+/*!\file    tException.h
  *
  * \author  Tobias Foehst
  *
  * \date    2010-06-26
  *
- * \brief   Contains tXML2WrapperException
+ * \brief   Contains tException
  *
- * \b tXML2WrapperException
+ * \b tException
  *
  * Runtime errors that come along with invalid XML input are handled
- * by throwing an instance of tXML2WrapperException, which is the only
+ * by throwing an instance of tException, which is the only
  * proper way to cope with construction errors.
- * tXML2WrapperException is derived from std::runtime_error and thus
+ * tException is derived from std::runtime_error and thus
  * can be caught either especially for this library or in a general
  * runtime_error block.
  *
  */
 //----------------------------------------------------------------------
-#ifndef __rrlib__xml2_wrapper__tXML2WrapperException_h__
-#define __rrlib__xml2_wrapper__tXML2WrapperException_h__
+#ifndef __rrlib__xml__tException_h__
+#define __rrlib__xml__tException_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -59,7 +59,7 @@
 //----------------------------------------------------------------------
 namespace rrlib
 {
-namespace xml2
+namespace xml
 {
 
 //----------------------------------------------------------------------
@@ -76,7 +76,7 @@ namespace xml2
  *  errors.
  *
  */
-class tXML2WrapperException : public std::runtime_error
+class tException : public std::runtime_error
 {
 
 //----------------------------------------------------------------------
@@ -84,14 +84,14 @@ class tXML2WrapperException : public std::runtime_error
 //----------------------------------------------------------------------
 public:
 
-  /*! The ctor of tXML2WrapperException
+  /*! The ctor of tException
    *
    * This ctor forwards instantiation of an exception object to
    * std::runtime_error with the given message as error description.
    *
    * \param message   A message that describes the error
    */
-  tXML2WrapperException(const std::string &message)
+  tException(const std::string &message)
     : std::runtime_error(message)
   {}
 

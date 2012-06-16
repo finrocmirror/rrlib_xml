@@ -31,8 +31,8 @@
  *
  */
 //----------------------------------------------------------------------
-#ifndef __rrlib__xml2_wrapper__tCleanupHandler_h__
-#define __rrlib__xml2_wrapper__tCleanupHandler_h__
+#ifndef __rrlib__xml__tCleanupHandler_h__
+#define __rrlib__xml__tCleanupHandler_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -57,7 +57,7 @@ extern "C"
 //----------------------------------------------------------------------
 namespace rrlib
 {
-namespace xml2
+namespace xml
 {
 
 //----------------------------------------------------------------------

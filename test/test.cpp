@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    test_xml2_wrapper.cpp
+/*!\file    test.cpp
  *
  * \author  Tobias Foehst
  *
@@ -37,7 +37,7 @@
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXMLDocument.h"
+#include "rrlib/xml/tDocument.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -47,7 +47,7 @@
 //----------------------------------------------------------------------
 // Namespace usage
 //----------------------------------------------------------------------
-using namespace rrlib::xml2;
+using namespace rrlib::xml;
 
 //----------------------------------------------------------------------
 // Forward declarations / typedefs / enums
@@ -63,13 +63,13 @@ using namespace rrlib::xml2;
 
 int main(int argc, char **argv)
 {
-  tXMLDocument document1;
-  tXMLNode &root_node = document1.AddRootNode("test");
+  tDocument document1;
+  tNode &root_node = document1.AddRootNode("test");
   root_node.SetAttribute("prop_1", "val");
   root_node.SetAttribute("prop_2", true);
   root_node.SetAttribute("prop_3", 4.3);
   root_node.SetAttribute("prop_4", 123);
-  tXMLNode &node1 = root_node.AddChildNode("test1");
+  tNode &node1 = root_node.AddChildNode("test1");
   node1.SetAttribute("prop_1", "val_1");
   node1.SetAttribute("prop_2", true);
   node1.SetAttribute("prop_3", 4.3);
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
   node1.RemoveAttribute("prop_4");
 ////  node1.RemoveTextContent();
 
-  tXMLNode &node2 = node1.AddChildNode("test2");
+  tNode &node2 = node1.AddChildNode("test2");
   node2.SetAttribute("prop_1", "val_2");
   node2.SetAttribute("prop_2", true);
   node2.SetAttribute("prop_3", 4.3);
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
   std::cout << document1.RootNode().GetDoubleAttribute("prop_3") << std::endl;
   std::cout << document1.RootNode().GetIntAttribute("prop_4") << std::endl;
 
-  for (tXMLNode::iterator it = document1.RootNode().ChildrenBegin(); it != document1.RootNode().ChildrenEnd(); ++it)
+  for (tNode::iterator it = document1.RootNode().ChildrenBegin(); it != document1.RootNode().ChildrenEnd(); ++it)
   {
     std::cout << "Accessing node with content: " << it->GetXMLDump() << std::endl;
 
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 
   document1.WriteToFile("test.xml");
 
-  tXMLDocument document2(std::string("test.xml"), false);
+  tDocument document2(std::string("test.xml"), false);
 
   std::cout << "doc 2" << std::endl;
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 
   std::cout << "Accessing node with content: " << document2.RootNode().GetXMLDump(true) << std::endl;
 
-  for (tXMLNode::iterator it = document2.RootNode().ChildrenBegin(); it != document2.RootNode().ChildrenEnd(); ++it)
+  for (tNode::iterator it = document2.RootNode().ChildrenBegin(); it != document2.RootNode().ChildrenEnd(); ++it)
   {
     std::cout << "Accessing node with content: " << it->GetXMLDump() << std::endl;
 
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
   std::cout << "doc 2: " << document2.RootNode().GetXMLDump() << std::endl;
 
   {
-    tXMLDocument document3;
+    tDocument document3;
 
     document3.AddRootNode("foo");
 
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 
     std::cout << "content = " << document3.RootNode().FirstChild().GetTextContent() << std::endl;
 
-    for (tXMLNode::iterator it = document3.RootNode().FirstChild().ChildrenBegin(); it != document3.RootNode().FirstChild().ChildrenEnd(); ++it)
+    for (tNode::iterator it = document3.RootNode().FirstChild().ChildrenBegin(); it != document3.RootNode().FirstChild().ChildrenEnd(); ++it)
     {
       std::cout << "child: " << it->GetXMLDump() << std::endl;
     }

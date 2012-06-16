@@ -2,11 +2,11 @@
 <!DOCTYPE targets PUBLIC "-//RRLIB//DTD make 1.0" "http://rrlib.org/xml/1.0/make.dtd">
 <targets>
 
-  <rrlib name="xml2_wrapper"
+  <rrlib name="xml"
         libs="xml2">
     <sources>
       tCleanupHandler.h
-      tXML2WrapperException.h
+      tException.h
       *.cpp
     </sources>
   </rrlib>

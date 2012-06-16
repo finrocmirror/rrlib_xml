@@ -19,26 +19,26 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    tXMLDocument.h
+/*!\file    tDocument.h
  *
  * \author  Tobias Foehst
  *
  * \date    2010-09-18
  *
- * \brief Contains tXMLDocument
+ * \brief Contains tDocument
  *
- * \b tXMLDocument
+ * \b tDocument
  *
  * If an XML document is loaded for full access to its content, a DOM
  * tree is generated consisting of nodes of with attributes. This class
  * implements parsing and validating an XML file as well as accessing
- * the DOM tree through instances of tXMLNode, featuring lazy evaluation.
+ * the DOM tree through instances of tNode, featuring lazy evaluation.
  * That means wrapping instances are not created before they are used.
  *
  */
 //----------------------------------------------------------------------
-#ifndef __rrlib__xml2_wrapper__tXMLDocument_h__
-#define __rrlib__xml2_wrapper__tXMLDocument_h__
+#ifndef __rrlib__xml__tDocument_h__
+#define __rrlib__xml__tDocument_h__
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -52,7 +52,7 @@ extern "C"
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXMLNode.h"
+#include "rrlib/xml/tNode.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -63,7 +63,7 @@ extern "C"
 //----------------------------------------------------------------------
 namespace rrlib
 {
-namespace xml2
+namespace xml
 {
 
 //----------------------------------------------------------------------
@@ -77,11 +77,11 @@ namespace xml2
 /*! If an XML document is loaded for full access to its content, a DOM
  *  tree is generated consisting of nodes with attributes. This class
  *  implements parsing and validating an XML file as well as accessing
- *  the DOM tree through instances of tXMLNode, featuring lazy evaluation.
+ *  the DOM tree through instances of tNode, featuring lazy evaluation.
  *  That means wrapping instances are not created before they are used.
  *
  */
-class tXMLDocument
+class tDocument
 {
 
 //----------------------------------------------------------------------
@@ -89,53 +89,53 @@ class tXMLDocument
 //----------------------------------------------------------------------
 public:
 
-  /*! The ctor of an empty tXMLDocument
+  /*! The ctor of an empty tDocument
    *
    * This ctor creates a new xml document
    */
-  tXMLDocument();
+  tDocument();
 
-  /*! The ctor of tXMLDocument from a given file
+  /*! The ctor of tDocument from a given file
    *
    * This ctor reads and parses a file with given name into a XML DOM
    * representation.
    * If needed, the XML document is also validated using an included
    * DTD specification.
    *
-   * \exception tXML2WrapperException is thrown if the file was not found or could not be parsed
+   * \exception tException is thrown if the file was not found or could not be parsed
    *
    * \param file_name   The name of the file to load
    * \param validate    Whether the validation should be processed or not
    */
-  explicit tXMLDocument(const std::string &file_name, bool validate = true);
+  explicit tDocument(const std::string &file_name, bool validate = true);
 
-  /*! The ctor of tXMLDocument from a memory buffer
+  /*! The ctor of tDocument from a memory buffer
    *
    * This ctor reads and parses XML content given in a memory buffer into a XML DOM
    * representation.
    * If needed, the XML document is also validated using an included
    * DTD specification.
    *
-   * \exception tXML2WrapperException is thrown if the memory buffer could not be parsed
+   * \exception tException is thrown if the memory buffer could not be parsed
    *
    * \param buffer      Pointer to the memory buffer with XML content to be parsed
    * \param size        Size of the memory buffer
    * \param validate    Whether the validation should be processed or not
    */
-  tXMLDocument(const void *buffer, size_t size, bool validate = true);
+  tDocument(const void *buffer, size_t size, bool validate = true);
 
   /*!
    * move constructor
    */
-  tXMLDocument(tXMLDocument && other);
+  tDocument(tDocument && other);
 
-  /*! The dtor of tXMLDocument
+  /*! The dtor of tDocument
    */
-  ~tXMLDocument();
+  ~tDocument();
 
-  /*! Assign operator for tXMLDocument
+  /*! Assign operator for tDocument
    */
-  tXMLDocument& operator=(const tXMLDocument& other);
+  tDocument& operator=(const tDocument& other);
 
   /*! Get the root node of the DOM tree stored for this document
    *
@@ -144,11 +144,11 @@ public:
    *
    * \returns A reference to the root node
    */
-  tXMLNode &RootNode();
+  tNode &RootNode();
 
-  inline const tXMLNode &RootNode() const
+  inline const tNode &RootNode() const
   {
-    return const_cast<tXMLDocument *>(this)->RootNode();
+    return const_cast<tDocument *>(this)->RootNode();
   }
 
   /*! Add a root node to a new document in DOM representation
@@ -157,13 +157,13 @@ public:
    * add a root node with a specified name. After that, the root node
    * is fixed and additional calls to this method will throw an exception.
    *
-   * \exception tXML2WrapperException is thrown if the document already had a root node
+   * \exception tException is thrown if the document already had a root node
    *
    * \param name   The name of the root node
    *
    * \returns A reference to the newly created root node
    */
-  tXMLNode &AddRootNode(const std::string &name);
+  tNode &AddRootNode(const std::string &name);
 
   /*! Write the XML document to a file
    *
@@ -181,9 +181,9 @@ public:
 private:
 
   xmlDocPtr document;
-  mutable tXMLNode *root_node;
+  mutable tNode *root_node;
 
-  tXMLDocument(const tXMLDocument&); // generated copy-constructor is not safe
+  tDocument(const tDocument&); // generated copy-constructor is not safe
 };
 
 //----------------------------------------------------------------------

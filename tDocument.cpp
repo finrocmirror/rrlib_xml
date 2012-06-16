@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    tXMLDocument.cpp
+/*!\file    tDocument.cpp
  *
  * \author  Tobias Foehst
  *
@@ -27,7 +27,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXMLDocument.h"
+#include "rrlib/xml/tDocument.h"
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -37,8 +37,8 @@
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXML2WrapperException.h"
-#include "rrlib/xml2_wrapper/tCleanupHandler.h"
+#include "rrlib/xml/tException.h"
+#include "rrlib/xml/tCleanupHandler.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -54,7 +54,7 @@
 //----------------------------------------------------------------------
 namespace rrlib
 {
-namespace xml2
+namespace xml
 {
 
 //----------------------------------------------------------------------
@@ -70,9 +70,9 @@ namespace xml2
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
-// tXMLDocument constructors
+// tDocument constructors
 //----------------------------------------------------------------------
-tXMLDocument::tXMLDocument()
+tDocument::tDocument()
   : document(xmlNewDoc(reinterpret_cast<const xmlChar *>("1.0"))),
     root_node(0)
 {
@@ -80,30 +80,30 @@ tXMLDocument::tXMLDocument()
   tCleanupHandler::Instance();
 }
 
-tXMLDocument::tXMLDocument(const std::string &file_name, bool validate)
+tDocument::tDocument(const std::string &file_name, bool validate)
   : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
-    root_node(reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document)))
+    root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
 {
   assert(this->document);
   if (!this->document)
   {
-    throw tXML2WrapperException("Could not parse XML file `" + file_name + "'!");
+    throw tException("Could not parse XML file `" + file_name + "'!");
   }
   tCleanupHandler::Instance();
 }
 
-tXMLDocument::tXMLDocument(const void *buffer, size_t size, bool validate)
+tDocument::tDocument(const void *buffer, size_t size, bool validate)
   : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
-    root_node(reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document)))
+    root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
 {
   if (!this->document)
   {
-    throw tXML2WrapperException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
+    throw tException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
   }
   tCleanupHandler::Instance();
 }
 
-tXMLDocument::tXMLDocument(tXMLDocument && other)
+tDocument::tDocument(tDocument && other)
   : document(0),
     root_node(0)
 {
@@ -112,9 +112,9 @@ tXMLDocument::tXMLDocument(tXMLDocument && other)
 }
 
 //----------------------------------------------------------------------
-// tXMLDocument destructor
+// tDocument destructor
 //----------------------------------------------------------------------
-tXMLDocument::~tXMLDocument()
+tDocument::~tDocument()
 {
   if (this->document)
   {
@@ -123,9 +123,9 @@ tXMLDocument::~tXMLDocument()
 }
 
 //----------------------------------------------------------------------
-// tXMLDocument operator =
+// tDocument operator =
 //----------------------------------------------------------------------
-tXMLDocument &tXMLDocument::operator = (const tXMLDocument & other)
+tDocument &tDocument::operator = (const tDocument & other)
 {
   if (this == &other)
   {
@@ -133,40 +133,40 @@ tXMLDocument &tXMLDocument::operator = (const tXMLDocument & other)
   }
   xmlFreeDoc(this->document);
   this->document = xmlCopyDoc(other.document, true);
-  this->root_node = reinterpret_cast<tXMLNode *>(xmlDocGetRootElement(this->document));
+  this->root_node = reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document));
   return *this;
 }
 
 //----------------------------------------------------------------------
-// tXMLDocument RootNode
+// tDocument RootNode
 //----------------------------------------------------------------------
-tXMLNode &tXMLDocument::RootNode()
+tNode &tDocument::RootNode()
 {
   if (!this->root_node)
   {
-    throw tXML2WrapperException("No root node defined for this document!");
+    throw tException("No root node defined for this document!");
   }
   return *this->root_node;
 }
 
 //----------------------------------------------------------------------
-// tXMLDocument AddRootNode
+// tDocument AddRootNode
 //----------------------------------------------------------------------
-tXMLNode &tXMLDocument::AddRootNode(const std::string &name)
+tNode &tDocument::AddRootNode(const std::string &name)
 {
   if (this->root_node)
   {
-    throw tXML2WrapperException("Root node already exists with name `" + name + "'!");
+    throw tException("Root node already exists with name `" + name + "'!");
   }
-  this->root_node = reinterpret_cast<tXMLNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
+  this->root_node = reinterpret_cast<tNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
   xmlDocSetRootElement(this->document, this->root_node);
   return *this->root_node;
 }
 
 //----------------------------------------------------------------------
-// tXMLDocument WriteToFile
+// tDocument WriteToFile
 //----------------------------------------------------------------------
-void tXMLDocument::WriteToFile(const std::string &file_name, int compression) const
+void tDocument::WriteToFile(const std::string &file_name, int compression) const
 {
   if (compression)
   {

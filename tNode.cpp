@@ -19,7 +19,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    tXMLNode.cpp
+/*!\file    tNode.cpp
  *
  * \author  Tobias Foehst
  *
@@ -27,7 +27,7 @@
  *
  */
 //----------------------------------------------------------------------
-#include "rrlib/xml2_wrapper/tXMLNode.h"
+#include "rrlib/xml/tNode.h"
 
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
@@ -52,7 +52,7 @@
 //----------------------------------------------------------------------
 namespace rrlib
 {
-namespace xml2
+namespace xml
 {
 
 //----------------------------------------------------------------------
@@ -68,19 +68,19 @@ namespace xml2
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
-// tXMLNode destructor
+// tNode destructor
 //----------------------------------------------------------------------
-tXMLNode::~tXMLNode()
+tNode::~tNode()
 {
-  static_assert(sizeof(tXMLNode) == sizeof(xmlNode), "Do not add any variables or virtual methods to tXMLNode!");
+  static_assert(sizeof(tNode) == sizeof(xmlNode), "Do not add any variables or virtual methods to tNode!");
 }
 
 //----------------------------------------------------------------------
-// tXMLNode IsInSubtreeOf
+// tNode IsInSubtreeOf
 //----------------------------------------------------------------------
-const bool tXMLNode::IsInSubtreeOf(const tXMLNode &node) const
+const bool tNode::IsInSubtreeOf(const tNode &node) const
 {
-  const tXMLNode *current_node = this;
+  const tNode *current_node = this;
   do
   {
     if (current_node == &node)
@@ -88,60 +88,60 @@ const bool tXMLNode::IsInSubtreeOf(const tXMLNode &node) const
       return true;
     }
   }
-  while ((current_node = reinterpret_cast<tXMLNode *>(current_node->parent)));
+  while ((current_node = reinterpret_cast<tNode *>(current_node->parent)));
   return false;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode Name
+// tNode Name
 //----------------------------------------------------------------------
-const std::string tXMLNode::Name() const
+const std::string tNode::Name() const
 {
   return reinterpret_cast<const char *>(this->name);
 }
 
 //----------------------------------------------------------------------
-// tXMLNode ChildrenEnd
+// tNode ChildrenEnd
 //----------------------------------------------------------------------
-const tXMLNode::iterator &tXMLNode::ChildrenEnd()
+const tNode::iterator &tNode::ChildrenEnd()
 {
   static iterator end;
   return end;
 }
 
-const tXMLNode::const_iterator &tXMLNode::ChildrenEnd() const
+const tNode::const_iterator &tNode::ChildrenEnd() const
 {
   static const_iterator end;
   return end;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode FirstChild
+// tNode FirstChild
 //----------------------------------------------------------------------
-tXMLNode &tXMLNode::FirstChild()
+tNode &tNode::FirstChild()
 {
   if (!this->HasChildren())
   {
-    throw tXML2WrapperException("Node has no children!");
+    throw tException("Node has no children!");
   }
   return *this->ChildrenBegin();
 }
 
 //----------------------------------------------------------------------
-// tXMLNode AddChildNode
+// tNode AddChildNode
 //----------------------------------------------------------------------
-tXMLNode &tXMLNode::AddChildNode(const std::string &name, const std::string &content)
+tNode &tNode::AddChildNode(const std::string &name, const std::string &content)
 {
   const char* c = (content.length() == 0) ? NULL : content.c_str();
-  return reinterpret_cast<tXMLNode &>(*xmlNewChild(this, 0, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(c)));
+  return reinterpret_cast<tNode &>(*xmlNewChild(this, 0, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(c)));
 }
 
-tXMLNode &tXMLNode::AddChildNode(tXMLNode &node, bool copy)
+tNode &tNode::AddChildNode(tNode &node, bool copy)
 {
-  tXMLNode *child = &node;
+  tNode *child = &node;
   if (copy)
   {
-    child = reinterpret_cast<tXMLNode *>(xmlDocCopyNode(child, this->doc, 1));
+    child = reinterpret_cast<tNode *>(xmlDocCopyNode(child, this->doc, 1));
   }
   if (child->doc != this->doc)
   {
@@ -150,71 +150,71 @@ tXMLNode &tXMLNode::AddChildNode(tXMLNode &node, bool copy)
   if (this->IsInSubtreeOf(*child))
   {
     assert(!copy);
-    throw tXML2WrapperException("Cannot add node as child to its own subtree without copying!");
+    throw tException("Cannot add node as child to its own subtree without copying!");
   }
   xmlAddChild(this, child);
   return *child;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode RemoveChildNode
+// tNode RemoveChildNode
 //----------------------------------------------------------------------
-void tXMLNode::RemoveChildNode(tXMLNode &node)
+void tNode::RemoveChildNode(tNode &node)
 {
   iterator it = std::find(this->ChildrenBegin(), this->ChildrenEnd(), node);
   if (it == this->ChildrenEnd())
   {
-    throw tXML2WrapperException("Given node is not a child of this!");
+    throw tException("Given node is not a child of this!");
   }
   it->FreeNode();
 }
 
 //----------------------------------------------------------------------
-// tXMLNode NextSiblingsEnd
+// tNode NextSiblingsEnd
 //----------------------------------------------------------------------
-const tXMLNode::iterator &tXMLNode::NextSiblingsEnd()
+const tNode::iterator &tNode::NextSiblingsEnd()
 {
   static iterator end;
   return end;
 }
 
-const tXMLNode::const_iterator &tXMLNode::NextSiblingsEnd() const
+const tNode::const_iterator &tNode::NextSiblingsEnd() const
 {
   static const_iterator end;
   return end;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode NextSibling
+// tNode NextSibling
 //----------------------------------------------------------------------
-tXMLNode &tXMLNode::NextSibling()
+tNode &tNode::NextSibling()
 {
   if (!this->HasNextSibling())
   {
-    throw tXML2WrapperException("Node has no sibling!");
+    throw tException("Node has no sibling!");
   }
   return *this->NextSiblingsBegin();
 }
 
 //----------------------------------------------------------------------
-// tXMLNode AddNextSibling
+// tNode AddNextSibling
 //----------------------------------------------------------------------
-tXMLNode &tXMLNode::AddNextSibling(const std::string &name, const std::string &content)
+tNode &tNode::AddNextSibling(const std::string &name, const std::string &content)
 {
-  tXMLNode *sibling = reinterpret_cast<tXMLNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
+  tNode *sibling = reinterpret_cast<tNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
   if (content != "")
   {
     xmlNodeSetContentLen(sibling, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
   }
-  return reinterpret_cast<tXMLNode &>(*xmlAddNextSibling(this, sibling));
+  return reinterpret_cast<tNode &>(*xmlAddNextSibling(this, sibling));
 }
 
-tXMLNode &tXMLNode::AddNextSibling(tXMLNode &node, bool copy)
+tNode &tNode::AddNextSibling(tNode &node, bool copy)
 {
-  tXMLNode *sibling = &node;
+  tNode *sibling = &node;
   if (copy)
   {
-    sibling = reinterpret_cast<tXMLNode *>(xmlDocCopyNode(sibling, this->doc, 1));
+    sibling = reinterpret_cast<tNode *>(xmlDocCopyNode(sibling, this->doc, 1));
   }
   if (sibling->doc != this->doc)
   {
@@ -223,62 +223,62 @@ tXMLNode &tXMLNode::AddNextSibling(tXMLNode &node, bool copy)
   if (this->IsInSubtreeOf(*sibling))
   {
     assert(!copy);
-    throw tXML2WrapperException("Cannot add node as sibling in its own subtree without copying!");
+    throw tException("Cannot add node as sibling in its own subtree without copying!");
   }
   xmlAddNextSibling(this, sibling);
   return *sibling;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetTextContent
+// tNode GetTextContent
 //----------------------------------------------------------------------
-const std::string tXMLNode::GetTextContent() const
+const std::string tNode::GetTextContent() const
 {
-  xmlChar *content = xmlNodeGetContent(const_cast<tXMLNode *>(this));
+  xmlChar *content = xmlNodeGetContent(const_cast<tNode *>(this));
   std::string result(reinterpret_cast<const char *>(content));
   xmlFree(content);
   return result;
 }
 
 //----------------------------------------------------------------------
-// tXMLNode AddTextContent
+// tNode AddTextContent
 //----------------------------------------------------------------------
-void tXMLNode::AddTextContent(const std::string &content)
+void tNode::AddTextContent(const std::string &content)
 {
   xmlNodeAddContentLen(this, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
 }
 
 //----------------------------------------------------------------------
-// tXMLNode SetContent
+// tNode SetContent
 //----------------------------------------------------------------------
-void tXMLNode::SetContent(const std::string &content)
+void tNode::SetContent(const std::string &content)
 {
   xmlNodeSetContentLen(this, reinterpret_cast<const xmlChar *>(content.c_str()), content.length());
 }
 
 //----------------------------------------------------------------------
-// tXMLNode RemoveTextContent
+// tNode RemoveTextContent
 //----------------------------------------------------------------------
-void tXMLNode::RemoveTextContent()
+void tNode::RemoveTextContent()
 {
-  std::vector<tXMLNode *> nodes_to_delete;
+  std::vector<tNode *> nodes_to_delete;
   for (xmlNodePtr child_node = this->children; child_node; child_node = child_node->next)
   {
     if (xmlNodeIsText(child_node))
     {
-      nodes_to_delete.push_back(reinterpret_cast<tXMLNode *>(child_node));
+      nodes_to_delete.push_back(reinterpret_cast<tNode *>(child_node));
     }
   }
-  for (std::vector<tXMLNode *>::iterator it = nodes_to_delete.begin(); it != nodes_to_delete.end(); ++it)
+  for (std::vector<tNode *>::iterator it = nodes_to_delete.begin(); it != nodes_to_delete.end(); ++it)
   {
     (*it)->FreeNode();
   }
 }
 
 //----------------------------------------------------------------------
-// tXMLNode SetStringAttribute
+// tNode SetStringAttribute
 //----------------------------------------------------------------------
-void tXMLNode::SetStringAttribute(const std::string &name, const std::string &value, bool create)
+void tNode::SetStringAttribute(const std::string &name, const std::string &value, bool create)
 {
   if (!this->HasAttribute(name))
   {
@@ -287,15 +287,15 @@ void tXMLNode::SetStringAttribute(const std::string &name, const std::string &va
       xmlNewProp(this, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
       return;
     }
-    throw tXML2WrapperException("Attribute `" + name + "' does not exist in this node and creation was disabled!");
+    throw tException("Attribute `" + name + "' does not exist in this node and creation was disabled!");
   }
   xmlSetProp(this, reinterpret_cast<const xmlChar *>(name.c_str()), reinterpret_cast<const xmlChar *>(value.c_str()));
 }
 
 //----------------------------------------------------------------------
-// tXMLNode RemoveAttribute
+// tNode RemoveAttribute
 //----------------------------------------------------------------------
-void tXMLNode::RemoveAttribute(const std::string &name)
+void tNode::RemoveAttribute(const std::string &name)
 {
   xmlAttrPtr attr = xmlHasProp(this, reinterpret_cast<const xmlChar *>(name.c_str()));
   if (attr)
@@ -305,12 +305,12 @@ void tXMLNode::RemoveAttribute(const std::string &name)
 }
 
 //----------------------------------------------------------------------
-// tXMLNode GetXMLDump
+// tNode GetXMLDump
 //----------------------------------------------------------------------
-const std::string tXMLNode::GetXMLDump(bool format) const
+const std::string tNode::GetXMLDump(bool format) const
 {
   xmlBufferPtr buffer = xmlBufferCreate();
-  xmlNodeDump(buffer, this->doc, const_cast<tXMLNode *>(this), 0, format);
+  xmlNodeDump(buffer, this->doc, const_cast<tNode *>(this), 0, format);
   std::string result(reinterpret_cast<const char *>(buffer->content));
   xmlBufferFree(buffer);
   return result;
