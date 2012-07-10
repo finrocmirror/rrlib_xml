@@ -42,7 +42,7 @@ extern "C"
 #include <libxml/tree.h>
 }
 
-#include "rrlib/util/patterns/singleton.h"
+#include "rrlib/design_patterns/singleton.h"
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -92,7 +92,7 @@ public:
 
 };
 
-typedef util::tSingletonHolder<tCleanupHandlerImplementation, util::singleton::PhoenixSingleton> tCleanupHandler;
+typedef design_patterns::tSingletonHolder<tCleanupHandlerImplementation, design_patterns::singleton::PhoenixSingleton> tCleanupHandler;
 
 //----------------------------------------------------------------------
 // End of namespace declaration
