@@ -537,7 +537,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as int.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is not available or not a number
    *
    * \param name   The name of the attribute
    * \param base   The base that should be used for number interpretation
@@ -554,7 +554,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as long int.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is not available or not a number
    *
    * \param name   The name of the attribute
    * \param base   The base that should be used for number interpretation
@@ -572,7 +572,7 @@ public:
    * the given name, its value is returned by this method as long long
    * int.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is not available or not a number
    *
    * \param name   The name of the attribute
    * \param base   The base that should be used for number interpretation
@@ -589,7 +589,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as float.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is not available or not a number
    *
    * \param name   The name of the attribute
    *
@@ -605,7 +605,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as double.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is not available or not a number
    *
    * \param name   The name of the attribute
    *
@@ -621,7 +621,7 @@ public:
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is returned by this method as long double.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a number
+   * \exception tException is thrown if the requested attribute's value is not available or not a number
    *
    * \param name   The name of the attribute
    *
@@ -640,7 +640,7 @@ public:
    * be provided. The method then returns the index of the name that
    * was found in the attribute.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not a member of given vector
+   * \exception tException is thrown if the requested attribute's value is not available or the enum type is not covered by enum_string
    *
    * \param name         The name of the attribute
    * \param enum_names   The names of the enumeration elements
@@ -665,7 +665,7 @@ public:
    * the given name, its value is returned by this method interpreted
    * as bool.
    *
-   * \exception tException is thrown if the requested attribute's value is available or not true/false
+   * \exception tException is thrown if the requested attribute's value is not available or not true/false
    *
    * \param name   The name of the attribute
    *
