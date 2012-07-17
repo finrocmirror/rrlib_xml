@@ -109,6 +109,21 @@ public:
    */
   explicit tDocument(const std::string &file_name, bool validate = true);
 
+  /*! The ctor of tDocument from a given file with explicit encoding
+   *
+   * This ctor reads and parses a file with given name into a XML DOM
+   * representation.
+   * If needed, the XML document is also validated using an included
+   * DTD specification.
+   *
+   * \exception tException is thrown if the file was not found or could not be parsed
+   *
+   * \param file_name   The name of the file to load
+   * \param encoding    The encoding of the input file
+   * \param validate    Whether the validation should be processed or not
+   */
+  explicit tDocument(const std::string &file_name, const std::string &encoding, bool validate = true);
+
   /*! The ctor of tDocument from a memory buffer
    *
    * This ctor reads and parses XML content given in a memory buffer into a XML DOM
@@ -123,6 +138,22 @@ public:
    * \param validate    Whether the validation should be processed or not
    */
   tDocument(const void *buffer, size_t size, bool validate = true);
+
+  /*! The ctor of tDocument from a memory buffer with explicit encoding
+   *
+   * This ctor reads and parses XML content given in a memory buffer into a XML DOM
+   * representation.
+   * If needed, the XML document is also validated using an included
+   * DTD specification.
+   *
+   * \exception tException is thrown if the memory buffer could not be parsed
+   *
+   * \param buffer      Pointer to the memory buffer with XML content to be parsed
+   * \param size        Size of the memory buffer
+   * \param encoding    The encoding of the input file
+   * \param validate    Whether the validation should be processed or not
+   */
+  tDocument(const void *buffer, size_t size, const std::string &encoding, bool validate = true);
 
   /*!
    * move constructor
@@ -184,6 +215,9 @@ private:
   mutable tNode *root_node;
 
   tDocument(const tDocument&); // generated copy-constructor is not safe
+
+  void CheckIfDocumentIsValid(const std::string &exception_message);
+
 };
 
 //----------------------------------------------------------------------

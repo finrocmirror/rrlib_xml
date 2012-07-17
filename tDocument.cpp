@@ -85,10 +85,16 @@ tDocument::tDocument(const std::string &file_name, bool validate)
     root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
 {
   assert(this->document);
-  if (!this->document)
-  {
-    throw tException("Could not parse XML file `" + file_name + "'!");
-  }
+  this->CheckIfDocumentIsValid("Could not parse XML file `" + file_name + "'!");
+  tCleanupHandler::Instance();
+}
+
+tDocument::tDocument(const std::string &file_name, const std::string &encoding, bool validate)
+  : document(xmlReadFile(file_name.c_str(), encoding.c_str(), validate ? XML_PARSE_DTDVALID : 0)),
+    root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
+{
+  assert(this->document);
+  this->CheckIfDocumentIsValid("Could not parse XML file `" + file_name + "'!");
   tCleanupHandler::Instance();
 }
 
@@ -96,10 +102,15 @@ tDocument::tDocument(const void *buffer, size_t size, bool validate)
   : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", 0, validate ? XML_PARSE_DTDVALID : 0)),
     root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
 {
-  if (!this->document)
-  {
-    throw tException("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
-  }
+  this->CheckIfDocumentIsValid("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
+  tCleanupHandler::Instance();
+}
+
+tDocument::tDocument(const void *buffer, size_t size, const std::string &encoding, bool validate)
+  : document(xmlReadMemory(reinterpret_cast<const char *>(buffer), size, "noname.xml", encoding.c_str(), validate ? XML_PARSE_DTDVALID : 0)),
+    root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
+{
+  this->CheckIfDocumentIsValid("Could not parse XML from memory buffer `" + std::string(reinterpret_cast<const char *>(buffer)) + "'!");
   tCleanupHandler::Instance();
 }
 
@@ -173,6 +184,17 @@ void tDocument::WriteToFile(const std::string &file_name, int compression) const
     xmlSetDocCompressMode(this->document, compression);
   }
   xmlSaveFormatFileEnc(file_name.c_str(), this->document, "UTF-8", 1);
+}
+
+//----------------------------------------------------------------------
+// tDocument CheckIfDocumentIsValid
+//----------------------------------------------------------------------
+void tDocument::CheckIfDocumentIsValid(const std::string &exception_message)
+{
+  if (!this->document)
+  {
+    throw tException(exception_message);
+  }
 }
 
 //----------------------------------------------------------------------
