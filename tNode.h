@@ -648,12 +648,8 @@ public:
   template <typename TEnum>
   inline const TEnum GetEnumAttribute(const std::string &name) const
   {
-    const std::vector<const char *> *enum_names = make_builder::GetEnumStrings<TEnum>();
-    if (enum_names == NULL)
-    {
-      throw tException("Could not find enum to string lookup table");
-    }
-    return this->GetEnumAttribute<TEnum>(name, enum_names->begin(), enum_names->end());
+    const make_builder::tEnumStrings &enum_strings(make_builder::GetEnumStrings<TEnum>());
+    return this->GetEnumAttribute<TEnum>(name, enum_strings.strings, enum_strings.strings + enum_strings.size);
   }
 
   /*! Get an XML attribute as enum
