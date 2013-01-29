@@ -632,14 +632,15 @@ public:
     return tNode::ConvertStringToNumber(this->GetStringAttribute(name), std::strtold);
   }
 
-  /*! Get an XML attribute as enum
+  /*! Get an XML attribute as enum (safe variant)
    *
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is interpreted as name of an element
    * in an enumeration. The names are taken from make-builders enum
    * to string mechanism.
    *
-   * \exception tException is thrown if the requested attribute's value is not available or the enum type is not covered by enum_string
+   * \exception tException is thrown if the requested attribute's value is not available
+   * \exception std::runtime_error is thrown if attribute's value can not be resolved into an enum value
    *
    * \param name         The name of the attribute
    *
@@ -648,11 +649,10 @@ public:
   template <typename TEnum>
   inline const TEnum GetEnumAttribute(const std::string &name) const
   {
-    const make_builder::tEnumStrings &enum_strings(make_builder::GetEnumStrings<TEnum>());
-    return this->GetEnumAttribute<TEnum>(name, enum_strings.strings, enum_strings.strings + enum_strings.size);
+    return make_builder::GetEnumValueFromString<TEnum>(this->GetStringAttribute(name), make_builder::tEnumStringsFormat::LOWER);
   }
 
-  /*! Get an XML attribute as enum
+  /*! Get an XML attribute as enum (using an explicit list of strings)
    *
    * If the XML node wrapped by this instance has an attribute with
    * the given name, its value is interpreted as name of an element
@@ -663,13 +663,14 @@ public:
    *
    * \exception tException is thrown if the requested attribute's value is not available or not a member of given vector
    *
-   * \param name         The name of the attribute
-   * \param enum_names   The names of the enumeration elements
+   * \param name               The name of the attribute
+   * \param enum_names_begin   Begin of possible enum strings
+   * \param enum_names_end     End of possible enum strings
    *
    * \returns The index of the matching element name as enum value
    */
-  template <typename TEnum, typename TIterator>
-  inline const TEnum GetEnumAttribute(const std::string &name, const TIterator enum_names_begin, const TIterator enum_names_end) const
+  template <typename TIterator>
+  inline typename std::iterator_traits<TIterator>::difference_type GetEnumAttribute(const std::string &name, const TIterator enum_names_begin, const TIterator enum_names_end) const
   {
     const std::string value = this->GetStringAttribute(name);
     TIterator it = std::find(enum_names_begin, enum_names_end, value);
@@ -677,7 +678,7 @@ public:
     {
       throw tException("Invalid value for " + this->Name() + "." + name + ": `" + value + "'");
     }
-    return static_cast<TEnum>(std::distance(enum_names_begin, it));
+    return std::distance(enum_names_begin, it);
   }
 
   /*! Get an XML attribute as bool
@@ -694,8 +695,8 @@ public:
    */
   inline const bool GetBoolAttribute(const std::string &name) const
   {
-    const std::vector<std::string> bool_names = { "false", "true" };
-    return this->GetEnumAttribute<bool>(name, bool_names.begin(), bool_names.end());
+    static const std::vector<std::string> bool_names = { "false", "true" };
+    return this->GetEnumAttribute(name, bool_names.begin(), bool_names.end());
   }
 
   /*! Get list of XML attributes of this node
