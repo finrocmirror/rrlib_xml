@@ -19,13 +19,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //----------------------------------------------------------------------
-/*!\file    tDocument.h
+/*!\file    rrlib/xml/tDocument.h
  *
  * \author  Tobias Foehst
  *
  * \date    2010-09-18
  *
- * \brief Contains tDocument
+ * \brief   Contains tDocument
  *
  * \b tDocument
  *
