@@ -55,7 +55,7 @@ extern "C"
 #include <cerrno>
 #include <cstdlib>
 #include <iterator>
-#include <boost/noncopyable.hpp>
+#include "rrlib/util/tNoncopyable.h"
 
 //----------------------------------------------------------------------
 // Internal includes with ""
@@ -90,7 +90,7 @@ namespace xml
  *  they are used.
  *
  */
-class tNode : protected xmlNode, boost::noncopyable
+class tNode : protected xmlNode, public util::tNoncopyable
 {
   friend class tDocument;
 
