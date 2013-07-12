@@ -84,7 +84,6 @@ tDocument::tDocument(const std::string &file_name, bool validate)
   : document(xmlReadFile(file_name.c_str(), 0, validate ? XML_PARSE_DTDVALID : 0)),
     root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
 {
-  assert(this->document);
   this->CheckIfDocumentIsValid("Could not parse XML file `" + file_name + "'!");
   tCleanupHandler::Instance();
 }
@@ -93,7 +92,6 @@ tDocument::tDocument(const std::string &file_name, const std::string &encoding, 
   : document(xmlReadFile(file_name.c_str(), encoding.c_str(), validate ? XML_PARSE_DTDVALID : 0)),
     root_node(reinterpret_cast<tNode *>(xmlDocGetRootElement(this->document)))
 {
-  assert(this->document);
   this->CheckIfDocumentIsValid("Could not parse XML file `" + file_name + "'!");
   tCleanupHandler::Instance();
 }
