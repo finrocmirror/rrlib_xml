@@ -418,7 +418,7 @@ public:
    *
    * \returns Whether a sibling is reachable or not
    */
-  inline const bool HasNextSibling()
+  inline const bool HasNextSibling() const
   {
     return this->NextSiblingsBegin() != this->NextSiblingsEnd();
   }
