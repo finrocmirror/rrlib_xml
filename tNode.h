@@ -260,6 +260,31 @@ public:
    */
   const std::string Name() const;
 
+  /*! Get access to the parent of this node
+   *
+   * This method gives access to the parent of \a this
+   * which is itself of type XML_ELEMENT_NODE.
+   *
+   * \exception tException is thrown if this node has no parent of type XML_ELEMENT_NODE
+   *
+   * \returns The parent node
+   */
+  tNode &Parent();
+
+  /*! Get access to the parent of this node in const context
+   *
+   * This method gives access to the parent of \a this
+   * which is itself of type XML_ELEMENT_NODE in const context.
+   *
+   * \exception tException is thrown if this node has no parent of type XML_ELEMENT_NODE
+   *
+   * \returns The parent node
+   */
+  inline const tNode &Parent() const
+  {
+    return const_cast<tNode *>(this)->Parent();
+  }
+
   /*! Get an iterator to the first of this node's children of type XML_ELEMENT_NODE
    *
    * \returns A begin-iterator
@@ -319,9 +344,9 @@ public:
    * This method gives access to the first child of \a this
    * which is itself of type XML_ELEMENT_NODE.
    *
-   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has no children of type XML_ELEMENT_NODE
    *
-   * \returns Whether \a this has children or not
+   * \returns The first child
    */
   tNode &FirstChild();
 
@@ -330,9 +355,9 @@ public:
    * This method gives access to the first child of \a this
    * which is itself of type XML_ELEMENT_NODE in const context.
    *
-   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has no children of type XML_ELEMENT_NODE
    *
-   * \returns Whether \a this has children or not
+   * \returns The first child
    */
   inline const tNode &FirstChild() const
   {
@@ -423,25 +448,25 @@ public:
     return this->NextSiblingsBegin() != this->NextSiblingsEnd();
   }
 
-  /*! Get access to first child of this node
+  /*! Get access to next sibling of this node
    *
-   * This method gives access to the first child of \a this
+   * This method gives access to the next sibling of \a this
    * which is itself of type XML_ELEMENT_NODE.
    *
-   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has no siblings of type XML_ELEMENT_NODE
    *
-   * \returns Whether \a this has children or not
+   * \returns The next sibling
    */
   tNode &NextSibling();
 
-  /*! Get access to first child of this node in const context
+  /*! Get access to next sibling this node in const context
    *
-   * This method gives access to the first child of \a this
+   * This method gives access to the next sibling of \a this
    * which is itself of type XML_ELEMENT_NODE in const context.
    *
-   * \exception tException is thrown if this node has not children of type XML_ELEMENT_NODE
+   * \exception tException is thrown if this node has no siblings of type XML_ELEMENT_NODE
    *
-   * \returns Whether \a this has children or not
+   * \returns The next sibling
    */
   inline const tNode &NextSibling() const
   {

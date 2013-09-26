@@ -101,6 +101,18 @@ const std::string tNode::Name() const
 }
 
 //----------------------------------------------------------------------
+// tNode Parent
+//----------------------------------------------------------------------
+const tNode &tNode::Parent() const
+{
+  if (!this->parent || this->parent->type != XML_ELEMENT_NODE)
+  {
+    throw tException("Node has no parent!");
+  }
+  return reinterpret_cast<tNode &>(*this->parent);
+}
+
+//----------------------------------------------------------------------
 // tNode ChildrenEnd
 //----------------------------------------------------------------------
 const tNode::iterator &tNode::ChildrenEnd()
