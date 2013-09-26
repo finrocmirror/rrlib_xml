@@ -103,7 +103,7 @@ const std::string tNode::Name() const
 //----------------------------------------------------------------------
 // tNode Parent
 //----------------------------------------------------------------------
-const tNode &tNode::Parent() const
+tNode &tNode::Parent()
 {
   if (!this->parent || this->parent->type != XML_ELEMENT_NODE)
   {
