@@ -2,8 +2,7 @@
 <!DOCTYPE targets PUBLIC "-//RRLIB//DTD make 1.0" "http://rrlib.org/xml/1.0/make.dtd">
 <targets>
 
-  <rrlib name="xml"
-        libs="xml2">
+  <rrlib libs="xml2">
     <sources>
       tCleanupHandler.h
       tException.h
