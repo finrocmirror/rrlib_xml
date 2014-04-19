@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<test prop_1="val" prop_2="true" prop_3="4.3" prop_4="123">
-  <test1 prop_1="val_1" prop_2="true" prop_3="4.3" prop_4="123">
-    <test2 prop_1="val_2" prop_2="true" prop_3="4.3" prop_4="123"/>
-  </test1>
-</test>
