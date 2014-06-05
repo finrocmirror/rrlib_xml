@@ -31,6 +31,8 @@
 //----------------------------------------------------------------------
 // External includes (system with <>, local with "")
 //----------------------------------------------------------------------
+#include "rrlib/util/tUnitTestSuite.h"
+
 #include <cstdlib>
 #include <unistd.h>
 
@@ -39,7 +41,6 @@
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
-#include "rrlib/util/tUnitTestSuite.h"
 
 //----------------------------------------------------------------------
 // Debugging
@@ -69,9 +70,9 @@ namespace xml
 //----------------------------------------------------------------------
 // Implementation
 //----------------------------------------------------------------------
-class tTest : public util::tUnitTestSuite
+class Test : public util::tUnitTestSuite
 {
-  RRLIB_UNIT_TESTS_BEGIN_SUITE(tTest);
+  RRLIB_UNIT_TESTS_BEGIN_SUITE(Test);
   RRLIB_UNIT_TESTS_ADD_TEST(CreateDocument);
   RRLIB_UNIT_TESTS_ADD_TEST(AccessAttributes);
   RRLIB_UNIT_TESTS_ADD_TEST(Children);
@@ -84,7 +85,7 @@ private:
 
   tDocument document;
 
-  virtual void InitializeTests()
+  virtual void InitializeTests() override
   {
     tNode &root_node = document.AddRootNode("test");
     root_node.SetAttribute("prop_1", "val");
@@ -107,9 +108,6 @@ private:
 
     node1.RemoveChildNode(node2);
   }
-
-  virtual void CleanUp()
-  {}
 
   void CreateDocument()
   {
@@ -176,10 +174,10 @@ private:
   }
 };
 
+RRLIB_UNIT_TESTS_REGISTER_SUITE(Test);
+
 //----------------------------------------------------------------------
 // End of namespace declaration
 //----------------------------------------------------------------------
 }
 }
-
-RRLIB_UNIT_TESTS_REGISTER_SUITE(rrlib::xml::tTest);
