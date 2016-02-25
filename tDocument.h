@@ -196,6 +196,23 @@ public:
    */
   tNode &AddRootNode(const std::string &name);
 
+
+  /*! Find a node in this XML document via a path in DOM tree representation
+   *
+   * Given a path to the searched node, an xpath query is executed
+   * on the DOM tree representation of this document in order to locate
+   * the respective XML node. If the query is successful, a reference
+   * to the node is returned, otherwise an exception is thrown.
+   *
+   * \exception tException is thrown if the query cannot be executed or the node cannot be found
+   *
+   * \param name   The path to the searched node in the DOM tree of this document
+   *
+   * \returns A reference to the found node
+   */
+  const tNode &FindNode(const std::string &name) const;
+
+
   /*! Write the XML document to a file
    *
    * This method creates or truncates a file with the given name and writes

@@ -162,6 +162,8 @@ private:
 
     RRLIB_UNIT_TESTS_EQUALITY(std::string("text1text2text3"), doc.RootNode().FirstChild().GetTextContent());
 
+    RRLIB_UNIT_TESTS_EQUALITY(std::string("<child2>text2</child2>"), doc.FindNode("/foo/child1/child2").GetXMLDump());
+
     doc.RootNode().FirstChild().RemoveTextContent();
 
     RRLIB_UNIT_TESTS_EQUALITY(std::string("text2"), doc.RootNode().FirstChild().GetTextContent());
@@ -171,6 +173,10 @@ private:
     this->document.RootNode().AddChildNode(doc.RootNode().FirstChild());
 
     RRLIB_UNIT_TESTS_EQUALITY(std::string("<test prop_1=\"val\" prop_2=\"true\" prop_3=\"4.3\" prop_4=\"123\"><test1 prop_1=\"val_1\" prop_2=\"true\" prop_3=\"4.3\"/><child1><child2>text2</child2></child1></test>"), this->document.RootNode().GetXMLDump());
+
+    RRLIB_UNIT_TESTS_EQUALITY(std::string("<test1 prop_1=\"val_1\" prop_2=\"true\" prop_3=\"4.3\"/>"), this->document.FindNode("/test/test1").GetXMLDump());
+
+    RRLIB_UNIT_TESTS_EXCEPTION(this->document.FindNode("/test/test2"), tException);
   }
 };
 

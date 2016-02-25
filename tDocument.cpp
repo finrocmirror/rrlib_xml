@@ -34,6 +34,11 @@
 //----------------------------------------------------------------------
 #include <iostream>
 
+extern "C"
+{
+#include <libxml/xpath.h>
+}
+
 //----------------------------------------------------------------------
 // Internal includes with ""
 //----------------------------------------------------------------------
@@ -170,6 +175,36 @@ tNode &tDocument::AddRootNode(const std::string &name)
   this->root_node = reinterpret_cast<tNode *>(xmlNewNode(0, reinterpret_cast<const xmlChar *>(name.c_str())));
   xmlDocSetRootElement(this->document, this->root_node);
   return *this->root_node;
+}
+
+//----------------------------------------------------------------------
+// tDocument FindNode
+//----------------------------------------------------------------------
+const tNode &tDocument::FindNode(const std::string &name) const
+{
+  xmlXPathContext *xpath_context = xmlXPathNewContext(this->document); // requires cleanup
+  if (xpath_context == nullptr)
+  {
+    throw tException("Could not create the XPath context!");
+  }
+
+  xmlXPathObject *xpath_object = xmlXPathEvalExpression((xmlChar*)name.c_str(), xpath_context); // requires cleanup
+  if (xpath_object == nullptr)
+  {
+    xmlXPathFreeContext(xpath_context); // clean up the XPath context
+    throw tException("Could not evaluate the XPath expression!");
+  }
+
+  if ((xpath_object->nodesetval == nullptr) || (xpath_object->nodesetval->nodeTab == nullptr))
+  {
+    xmlXPathFreeObject(xpath_object); // clean up the XPath object
+    xmlXPathFreeContext(xpath_context); // clean up the XPath context
+    throw tException("Could not find the expected node!");
+  }
+  xmlNode *node = xpath_object->nodesetval->nodeTab[0]; // fetch node from query result
+  xmlXPathFreeObject(xpath_object); // clean up the XPath object
+  xmlXPathFreeContext(xpath_context); // clean up the XPath context
+  return *reinterpret_cast<tNode *>(node);
 }
 
 //----------------------------------------------------------------------
