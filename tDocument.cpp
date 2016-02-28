@@ -33,6 +33,7 @@
 // External includes (system with <>, local with "")
 //----------------------------------------------------------------------
 #include <iostream>
+#include <memory>
 
 extern "C"
 {
@@ -182,28 +183,33 @@ tNode &tDocument::AddRootNode(const std::string &name)
 //----------------------------------------------------------------------
 const tNode &tDocument::FindNode(const std::string &name) const
 {
-  xmlXPathContext *xpath_context = xmlXPathNewContext(this->document); // requires cleanup
+  auto cleanup_path_context = [](xmlXPathContext * ptr)
+  {
+    xmlXPathFreeContext(ptr);
+  }; // clean up the XPath context
+  std::unique_ptr<xmlXPathContext, decltype(cleanup_path_context)> xpath_context(xmlXPathNewContext(this->document), cleanup_path_context); // create and initialize an XPath context for this document with auto cleanup
+
   if (xpath_context == nullptr)
   {
     throw tException("Could not create the XPath context!");
   }
 
-  xmlXPathObject *xpath_object = xmlXPathEvalExpression((xmlChar*)name.c_str(), xpath_context); // requires cleanup
+  auto cleanup_path_object = [](xmlXPathObject * ptr)
+  {
+    xmlXPathFreeObject(ptr);
+  }; // clean up the XPath object
+  std::unique_ptr<xmlXPathObject, decltype(cleanup_path_object)> xpath_object(xmlXPathEvalExpression((xmlChar*)name.c_str(), xpath_context.get()), cleanup_path_object); // create and initialize an XPath object as query result with auto cleanup
+
   if (xpath_object == nullptr)
   {
-    xmlXPathFreeContext(xpath_context); // clean up the XPath context
     throw tException("Could not evaluate the XPath expression!");
   }
 
   if ((xpath_object->nodesetval == nullptr) || (xpath_object->nodesetval->nodeTab == nullptr))
   {
-    xmlXPathFreeObject(xpath_object); // clean up the XPath object
-    xmlXPathFreeContext(xpath_context); // clean up the XPath context
     throw tException("Could not find the expected node!");
   }
   xmlNode *node = xpath_object->nodesetval->nodeTab[0]; // fetch node from query result
-  xmlXPathFreeObject(xpath_object); // clean up the XPath object
-  xmlXPathFreeContext(xpath_context); // clean up the XPath context
   return *reinterpret_cast<tNode *>(node);
 }
 
